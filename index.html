@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🐝 Beezy Buddies Buko Pie atbp</title>
+
+  <!-- ─── Frameworks ─────────────────────────────────────────── -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- ─── Fonts ──────────────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- ─── Styles ─────────────────────────────────────────────── -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- ─── JS Load Order (globals, shared first) ──────────────── -->
+  <script type="text/babel" data-presets="react" src="js/config.js"></script>
+  <script type="text/babel" data-presets="react" src="js/utils.js"></script>
+  <script type="text/babel" data-presets="react" src="js/state.js"></script>
+  <script type="text/babel" data-presets="react" src="js/router.js"></script>
+  <script type="text/babel" data-presets="react" src="js/components.js"></script>
+
+  <!-- ─── Pages ──────────────────────────────────────────────── -->
+  <script type="text/babel" data-presets="react" src="js/pages/LoginPage.js"></script>
+  <script type="text/babel" data-presets="react" src="js/pages/SalesPage.js"></script>
+  <script type="text/babel" data-presets="react" src="js/pages/CashCountPage.js"></script>
+  <script type="text/babel" data-presets="react" src="js/pages/ExpensesPage.js"></script>
+  <script type="text/babel" data-presets="react" src="js/pages/ProductionPage.js"></script>
+  <script type="text/babel" data-presets="react" src="js/pages/ProductsPage.js"></script>
+  <script type="text/babel" data-presets="react" src="js/pages/DashboardPage.js"></script>
+  <script type="text/babel" data-presets="react" src="js/pages/SettingsPage.js"></script>
+
+  <!-- ─── App Entry ───────────────────────────────────────────── -->
+  <script type="text/babel" data-presets="react" src="js/app.js"></script>
+</body>
+</html>
