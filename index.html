@@ -5,42 +5,2568 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>🐝 Beezy Buddies Buko Pie atbp</title>
 
-  <!-- ─── Frameworks ─────────────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════════════════
+       FRAMEWORKS
+       React 18 · ReactDOM · Babel (JSX transpiler in-browser)
+       ═══════════════════════════════════════════════════════════ -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- ─── Fonts ──────────────────────────────────────────────── -->
+  <!-- ═══════════════════════════════════════════════════════════
+       FONTS  (Google Fonts)
+       Baloo 2 — display/headings
+       Plus Jakarta Sans — body text
+       ═══════════════════════════════════════════════════════════ -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- ─── Styles ─────────────────────────────────────────────── -->
-  <link rel="stylesheet" href="css/styles.css" />
+  <!-- ═══════════════════════════════════════════════════════════
+       CSS  ▸  styles.css
+       ═══════════════════════════════════════════════════════════ -->
+  <style>
+/* ═══════════════════════════════════════════════════════════════
+   styles.css — Beezy Buddies Buko Pie atbp
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Reset & Root ──────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Greens */
+  --g900: #0d4a28;
+  --g800: #145e33;
+  --g700: #1a6e3c;
+  --g600: #1f8048;
+  --g500: #25934f;
+  --g400: #2da85c;
+  --g200: #a3e8be;
+  --g100: #d1f5e2;
+  --g50:  #f0faf4;
+
+  /* Yellows */
+  --y500: #f59e0b;
+  --y400: #fbbf24;
+  --y300: #fcd34d;
+  --y100: #fef3c7;
+
+  /* Reds */
+  --r500: #ef4444;
+  --r100: #fee2e2;
+
+  /* Neutrals */
+  --bg:     #f3f7f4;
+  --card:   #ffffff;
+  --border: #e2ede6;
+
+  /* Text */
+  --tx1: #0f2d1a;
+  --tx2: #3d6347;
+  --tx3: #6b9a78;
+
+  /* Shadows */
+  --shadow:    0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06);
+}
+
+/* ─── Base ──────────────────────────────────────────────────── */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--tx1);
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Baloo 2', cursive;
+}
+
+input, select, textarea, button {
+  font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--g200); border-radius: 4px; }
+
+.scroll-area {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Animations ────────────────────────────────────────────── */
+@keyframes fadeIn  { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:none } }
+@keyframes slideUp { from { transform:translateY(100%) }           to { transform:none } }
+@keyframes spin    { to   { transform:rotate(360deg) } }
+@keyframes pulse   { 0%,100% { opacity:1 }            50% { opacity:.5 } }
+@keyframes shake   { 0%,100% { transform:none } 25% { transform:translateX(-4px) } 75% { transform:translateX(4px) } }
+@keyframes pop     { 0% { transform:scale(.95); opacity:0 } 60% { transform:scale(1.03) } 100% { transform:scale(1); opacity:1 } }
+
+.anim-fade     { animation: fadeIn  .25s ease both; }
+.anim-pop      { animation: pop     .20s ease both; }
+.anim-slide-up { animation: slideUp .30s cubic-bezier(.16,1,.3,1) both; }
+.anim-shake    { animation: shake   .30s ease; }
+.anim-spin     { animation: spin    1s linear infinite; }
+
+/* ─── Buttons ───────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all .15s;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 15px;
+}
+.btn:active { transform: scale(.97); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.btn-primary { background: var(--g700); color: #fff; box-shadow: 0 2px 8px rgba(26,110,60,.35); }
+.btn-primary:hover { background: var(--g600); }
+
+.btn-accent  { background: var(--y400); color: var(--g900); box-shadow: 0 2px 8px rgba(245,158,11,.35); }
+.btn-accent:hover { background: var(--y300); }
+
+.btn-ghost   { background: transparent; color: var(--g700); border: 1.5px solid var(--g700); }
+.btn-ghost:hover { background: var(--g50); }
+
+.btn-danger  { background: var(--r500); color: #fff; }
+
+.btn-sm   { padding: 8px 14px; font-size: 13px; border-radius: 9px; }
+.btn-lg   { padding: 16px 28px; font-size: 17px; border-radius: 16px; }
+.btn-full { width: 100%; }
+
+/* ─── Cards ─────────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.card-body { padding: 16px; }
+.card-sm   { border-radius: 12px; }
+
+/* ─── Form Inputs ───────────────────────────────────────────── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx2);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.input {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 15px;
+  color: var(--tx1);
+  width: 100%;
+  transition: border .15s;
+}
+.input:focus {
+  border-color: var(--g500);
+  box-shadow: 0 0 0 3px rgba(37,147,79,.12);
+}
+.input-error { border-color: var(--r500); }
+
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b9a78' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* ─── Badges ────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.badge-green  { background: var(--g100); color: var(--g700); }
+.badge-yellow { background: var(--y100); color: #b45309; }
+.badge-red    { background: var(--r100); color: var(--r500); }
+.badge-gray   { background: #f1f5f1;    color: #6b7280; }
+
+/* ─── Bottom Navigation ─────────────────────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 50;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 16px rgba(0,0,0,.07);
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 4px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--tx3);
+  transition: color .15s;
+  font-size: 11px;
+  font-weight: 600;
+}
+.nav-item.active         { color: var(--g700); }
+.nav-item svg            { transition: transform .15s; }
+.nav-item.active svg     { transform: scale(1.1); }
+
+/* ─── Page Layout ───────────────────────────────────────────── */
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page-header {
+  padding: 16px 16px 12px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--g900);
+  line-height: 1;
+}
+
+.page-sub {
+  font-size: 13px;
+  color: var(--tx3);
+  margin-top: 3px;
+}
+
+.page-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+/* ─── Stat Cards ────────────────────────────────────────────── */
+.stat-card {
+  background: var(--g700);
+  border-radius: 16px;
+  padding: 16px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 80px; height: 80px;
+  background: rgba(255,255,255,.08);
+  border-radius: 50%;
+}
+.stat-val { font-family: 'Baloo 2', cursive; font-size: 26px; font-weight: 800; line-height: 1; }
+.stat-lbl { font-size: 12px; opacity: .75; margin-top: 4px; font-weight: 500; }
+
+.stat-card.yellow { background: var(--y400); color: var(--g900); }
+.stat-card.light  { background: var(--g50);  color: var(--g900); border: 1.5px solid var(--g200); }
+
+/* ─── Progress Bar ──────────────────────────────────────────── */
+.prog-bar  { height: 8px; background: var(--g100); border-radius: 99px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; background: var(--g700); transition: width .5s ease; }
+.prog-fill.yellow { background: var(--y400); }
+
+/* ─── Modal / Bottom Sheet ──────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+}
+
+.sheet {
+  background: #fff;
+  width: 100%;
+  border-radius: 24px 24px 0 0;
+  padding: 20px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.sheet-handle {
+  width: 40px; height: 4px;
+  background: var(--border);
+  border-radius: 99px;
+  margin: 0 auto 16px;
+}
+
+/* ─── Toasts ────────────────────────────────────────────────── */
+.toast-wrap {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--g900);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  animation: fadeIn .2s ease;
+  white-space: nowrap;
+}
+.toast.err { background: var(--r500); }
+.toast.ok  { background: var(--g700); }
+
+/* ─── Misc Components ───────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+.empty-state { text-align: center; padding: 48px 24px; color: var(--tx3); }
+.empty-icon  { font-size: 48px; margin-bottom: 12px; }
+.empty-title { font-size: 16px; font-weight: 700; color: var(--tx2); }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--tx2);
+}
+.chip.active { background: var(--g700); color: #fff; border-color: var(--g700); }
+
+.list-item               { padding: 14px; border-bottom: 1px solid var(--border); }
+.list-item:last-child    { border-bottom: none; }
+
+/* ─── Utility Classes ───────────────────────────────────────── */
+.row      { display: flex; gap: 10px; }
+.row > *  { flex: 1; }
+.grid-2   { display: grid; grid-template-columns: 1fr 1fr;     gap: 10px; }
+.grid-3   { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;  }
+
+.flex         { display: flex; }
+.flex-col     { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+
+.text-right  { text-align: right; }
+.text-center { text-align: center; }
+.text-sm     { font-size: 13px; }
+.text-xs     { font-size: 11px; }
+.text-green  { color: var(--g700); }
+.text-red    { color: var(--r500); }
+.text-yellow { color: #b45309; }
+
+.font-bold    { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.opacity-60   { opacity: .6; }
+
+.mt-2 { margin-top:    8px;  } .mt-3 { margin-top:    12px; } .mt-4 { margin-top:    16px; }
+.mb-2 { margin-bottom: 8px;  } .mb-3 { margin-bottom: 12px; } .mb-4 { margin-bottom: 16px; }
+.gap-2 { gap: 8px; }           .gap-3 { gap: 12px; }
+
+.w-full { width: 100%; }
+.p-3    { padding: 12px; }
+.p-4    { padding: 16px; }
+.px-3   { padding-left: 12px; padding-right: 12px; }
+
+.rounded      { border-radius: 10px; }
+.rounded-full { border-radius: 99px; }
+.sticky-top   { position: sticky; top: 0; z-index: 5; }
+.pill         { padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+.bg-green     { background: var(--g700); color: #fff; }
+.bg-yellow    { background: var(--y400); }
+
+  </style>
 </head>
 <body>
-  <div id="root"></div>
 
-  <!-- ─── JS Load Order (globals, shared first) ──────────────── -->
-  <script type="text/babel" data-presets="react" src="js/config.js"></script>
-  <script type="text/babel" data-presets="react" src="js/utils.js"></script>
-  <script type="text/babel" data-presets="react" src="js/state.js"></script>
-  <script type="text/babel" data-presets="react" src="js/router.js"></script>
-  <script type="text/babel" data-presets="react" src="js/components.js"></script>
+<!-- ═══════════════════════════════════════════════════════════════
+     HTML  ▸  App mount point
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="root"></div>
 
-  <!-- ─── Pages ──────────────────────────────────────────────── -->
-  <script type="text/babel" data-presets="react" src="js/pages/LoginPage.js"></script>
-  <script type="text/babel" data-presets="react" src="js/pages/SalesPage.js"></script>
-  <script type="text/babel" data-presets="react" src="js/pages/CashCountPage.js"></script>
-  <script type="text/babel" data-presets="react" src="js/pages/ExpensesPage.js"></script>
-  <script type="text/babel" data-presets="react" src="js/pages/ProductionPage.js"></script>
-  <script type="text/babel" data-presets="react" src="js/pages/ProductsPage.js"></script>
-  <script type="text/babel" data-presets="react" src="js/pages/DashboardPage.js"></script>
-  <script type="text/babel" data-presets="react" src="js/pages/SettingsPage.js"></script>
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT  (Babel/JSX — load order matters)
+     ─────────────────────────────────────────────────────────────
+     1. config.js       — GAS_URL, USERS, routes, constants
+     2. utils.js        — formatters, LS helper, Sheets API
+     3. state.js        — AuthCtx, AppCtx, ToastCtx + reducers
+     4. router.js       — useHash() hook
+     5. components.js   — Icon, Modal, BottomNav, PageHeader…
+     6. pages/          — one function per page
+     7. app.js          — AppRouter + ReactDOM.render()
+     ═══════════════════════════════════════════════════════════════ -->
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useContext, useReducer, createContext, useCallback, useMemo, useRef } = React;
 
-  <!-- ─── App Entry ───────────────────────────────────────────── -->
-  <script type="text/babel" data-presets="react" src="js/app.js"></script>
+/* ─────────────────────────────────────────────────────────────
+   config.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// config.js — App-wide configuration & constants
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Google Apps Script URL ──────────────────────────────────
+// Set this to your deployed GAS Web App URL to enable Sheets sync.
+// Leave empty ("") to run in local-only mode.
+const GAS_URL = ""; // e.g. "https://script.google.com/macros/s/YOUR_ID/exec"
+
+// ─── Hardcoded Users (MVP) ────────────────────────────────────
+const USERS = [
+  { id: "u1", email: "cashier@beezybuddies.ph", password: "cashier2024", role: "cashier", name: "Cashier" },
+  { id: "u2", email: "admin@beezybuddies.ph",   password: "admin2024!",  role: "admin",   name: "Admin"   },
+];
+
+// ─── Route Access Control ─────────────────────────────────────
+const CASHIER_ROUTES = ["/sales", "/cash-count"];
+const ADMIN_ROUTES   = ["/dashboard", "/sales", "/expenses", "/production", "/products", "/settings"];
+
+// ─── Default Product Catalogue ───────────────────────────────
+const DEFAULT_PRODUCTS = [
+  { id: "buko-sm",   name: "Buko Pie (Small)",  type: "manufactured" },
+  { id: "buko-lg",   name: "Buko Pie (Large)",  type: "manufactured" },
+  { id: "pandan",    name: "Pandan Buko Pie",   type: "manufactured" },
+  { id: "buko-tart", name: "Buko Tart",         type: "manufactured" },
+  { id: "ube",       name: "Ube Pie",           type: "manufactured" },
+  { id: "ensaymada", name: "Ensaymada",         type: "manufactured" },
+  { id: "pandesal",  name: "Pandesal (pack)",   type: "resale"       },
+  { id: "custom",    name: "Other / Custom",    type: "custom"       },
+];
+
+// ─── Expense Categories ───────────────────────────────────────
+const EXPENSE_CATEGORIES = [
+  "Ingredients", "Packaging", "Utilities", "Labor",
+  "Transport", "Maintenance", "Rent", "Office Supplies", "Other",
+];
+
+// ─── Cost Recovery Defaults ───────────────────────────────────
+const RECOVERY_DEFAULT = {
+  percentage: 2,
+  boxes:   { label: "Boxes & Display Equipment", total: 300000,  recovered: 0 },
+  vehicle: { label: "Delivery Vehicle",           total: 1300000, recovered: 0 },
+};
+
+
+/* ─────────────────────────────────────────────────────────────
+   utils.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// utils.js — Pure helpers: formatting, storage, Sheets API
+// ═══════════════════════════════════════════════════════════════
+
+// ─── ID & Date ───────────────────────────────────────────────
+const genId  = () => `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+const todayS = () => new Date().toISOString().split("T")[0];
+const nowISO = () => new Date().toISOString();
+
+// ─── Formatting ──────────────────────────────────────────────
+const peso  = n => `₱${(+n || 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const shortD = d => new Date(d).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+const fullD  = d => new Date(d).toLocaleDateString("en-PH", { month: "long", day: "numeric", year: "numeric" });
+const pct    = (a, b) => b === 0 ? 0 : Math.min(100, Math.round(a / b * 100));
+
+// ─── Business Logic ───────────────────────────────────────────
+function calcLineRev(qty, price, discPct) {
+  const gross = qty * price;
+  return gross - gross * (discPct / 100);
+}
+
+// ─── LocalStorage Wrapper ────────────────────────────────────
+const LS = {
+  get: (key, fallback) => {
+    try {
+      const val = localStorage.getItem(key);
+      return val ? JSON.parse(val) : fallback;
+    } catch {
+      return fallback;
+    }
+  },
+  set: (key, value) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {}
+  },
+};
+
+// ─── Google Sheets API ────────────────────────────────────────
+const sheetsAPI = {
+  async send(action, payload) {
+    if (!GAS_URL) return false;
+    try {
+      await fetch(GAS_URL, {
+        method:  "POST",
+        mode:    "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ action, payload }),
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  async setup() {
+    return sheetsAPI.send("setup", {});
+  },
+
+  async syncQueue(queue, onDone) {
+    const failed = [];
+    for (const item of queue) {
+      const ok = await sheetsAPI.send(item.action, item.payload);
+      if (!ok) failed.push(item);
+    }
+    onDone(failed);
+  },
+};
+
+
+/* ─────────────────────────────────────────────────────────────
+   state.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// state.js — React contexts: Auth, App state, Toast
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Auth Context ────────────────────────────────────────────
+const AuthCtx = createContext(null);
+
+function AuthProvider({ children }) {
+  const [user, setUser] = useState(() => LS.get("bb_user", null));
+
+  const login = (email, password) => {
+    const found = USERS.find(u => u.email === email && u.password === password);
+    if (!found) return null;
+    const session = { id: found.id, email: found.email, role: found.role, name: found.name };
+    LS.set("bb_user", session);
+    setUser(session);
+    return session;
+  };
+
+  const logout = () => {
+    LS.set("bb_user", null);
+    setUser(null);
+  };
+
+  return (
+    <AuthCtx.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthCtx.Provider>
+  );
+}
+
+// ─── App Reducer ─────────────────────────────────────────────
+const INIT = {
+  sales:       LS.get("bb_sales",      []),
+  expenses:    LS.get("bb_expenses",   []),
+  production:  LS.get("bb_production", []),
+  products:    LS.get("bb_products",   DEFAULT_PRODUCTS),
+  recovery:    LS.get("bb_recovery",   RECOVERY_DEFAULT),
+  pendingSync: LS.get("bb_pending",    []),
+};
+
+function appReducer(state, action) {
+  switch (action.type) {
+
+    case "ADD_SALE": {
+      const sales = [...state.sales, action.payload];
+      LS.set("bb_sales", sales);
+      // Apply cost recovery proportionally
+      const rv     = action.payload.revenue || 0;
+      const recAmt = rv * (state.recovery.percentage / 100);
+      const budget = state.recovery.boxes.total + state.recovery.vehicle.total;
+      const boxShare = budget === 0 ? 0.5 : state.recovery.boxes.total / budget;
+      const recovery = {
+        ...state.recovery,
+        boxes: {
+          ...state.recovery.boxes,
+          recovered: Math.min(state.recovery.boxes.total, state.recovery.boxes.recovered + recAmt * boxShare),
+        },
+        vehicle: {
+          ...state.recovery.vehicle,
+          recovered: Math.min(state.recovery.vehicle.total, state.recovery.vehicle.recovered + recAmt * (1 - boxShare)),
+        },
+      };
+      LS.set("bb_recovery", recovery);
+      return { ...state, sales, recovery };
+    }
+
+    case "ADD_EXPENSE": {
+      const expenses = [...state.expenses, action.payload];
+      LS.set("bb_expenses", expenses);
+      return { ...state, expenses };
+    }
+
+    case "ADD_PRODUCTION": {
+      const production = [...state.production, action.payload];
+      LS.set("bb_production", production);
+      return { ...state, production };
+    }
+
+    case "SET_RECOVERY": {
+      LS.set("bb_recovery", action.payload);
+      return { ...state, recovery: action.payload };
+    }
+
+    case "ADD_PRODUCT": {
+      const products = [...state.products, action.payload];
+      LS.set("bb_products", products);
+      return { ...state, products };
+    }
+
+    case "EDIT_PRODUCT": {
+      const products = state.products.map(p => p.id === action.payload.id ? action.payload : p);
+      LS.set("bb_products", products);
+      return { ...state, products };
+    }
+
+    case "DEL_PRODUCT": {
+      const products = state.products.filter(p => p.id !== action.payload);
+      LS.set("bb_products", products);
+      return { ...state, products };
+    }
+
+    case "ADD_PENDING": {
+      const pendingSync = [...state.pendingSync, action.payload];
+      LS.set("bb_pending", pendingSync);
+      return { ...state, pendingSync };
+    }
+
+    case "SET_PENDING": {
+      LS.set("bb_pending", action.payload);
+      return { ...state, pendingSync: action.payload };
+    }
+
+    default:
+      return state;
+  }
+}
+
+// ─── App Context ─────────────────────────────────────────────
+const AppCtx = createContext(null);
+
+function AppProvider({ children }) {
+  const [state, dispatch] = useReducer(appReducer, INIT);
+
+  // Auto-sync queued records when network comes back
+  useEffect(() => {
+    const sync = () => {
+      if (state.pendingSync.length > 0 && navigator.onLine) {
+        sheetsAPI.syncQueue(state.pendingSync, remaining =>
+          dispatch({ type: "SET_PENDING", payload: remaining })
+        );
+      }
+    };
+    window.addEventListener("online", sync);
+    sync();
+    return () => window.removeEventListener("online", sync);
+  }, []);
+
+  // Queue helper: try Sheets; fall back to pending queue on failure
+  const queue = async (action, payload) => {
+    const ok = await sheetsAPI.send(action, payload);
+    if (!ok) dispatch({ type: "ADD_PENDING", payload: { action, payload } });
+  };
+
+  const addSale = async (sale, products) => {
+    dispatch({ type: "ADD_SALE", payload: sale });
+    const enriched = {
+      ...sale,
+      lines: sale.lines.map(l => ({
+        ...l,
+        type: (products || []).find(p => p.name === l.product)?.type || "",
+      })),
+    };
+    await queue("appendSale", enriched);
+  };
+
+  const addExpense = async (exp) => {
+    dispatch({ type: "ADD_EXPENSE", payload: exp });
+    await queue("appendExpense", exp);
+  };
+
+  const addProduction = async (prod) => {
+    dispatch({ type: "ADD_PRODUCTION", payload: prod });
+    await queue("appendProduction", prod);
+  };
+
+  return (
+    <AppCtx.Provider value={{ state, dispatch, addSale, addExpense, addProduction }}>
+      {children}
+    </AppCtx.Provider>
+  );
+}
+
+// ─── Toast Context ────────────────────────────────────────────
+const ToastCtx = createContext(null);
+
+function ToastProvider({ children }) {
+  const [toasts, setToasts] = useState([]);
+
+  const show = (msg, type = "ok") => {
+    const id = genId();
+    setToasts(prev => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 2800);
+  };
+
+  return (
+    <ToastCtx.Provider value={show}>
+      {children}
+      <div className="toast-wrap">
+        {toasts.map(t => (
+          <div key={t.id} className={`toast ${t.type}`}>{t.msg}</div>
+        ))}
+      </div>
+    </ToastCtx.Provider>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   router.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// router.js — Hash-based client-side routing
+// ═══════════════════════════════════════════════════════════════
+
+function useHash() {
+  const [hash, setHash] = React.useState(() => window.location.hash.slice(1) || "/");
+
+  React.useEffect(() => {
+    const handler = () => setHash(window.location.hash.slice(1) || "/");
+    window.addEventListener("hashchange", handler);
+    return () => window.removeEventListener("hashchange", handler);
+  }, []);
+
+  const navigate = (path) => { window.location.hash = path; };
+
+  return [hash, navigate];
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   components.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// components.js — Shared UI components
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Icon ─────────────────────────────────────────────────────
+function Icon({ name, size = 20 }) {
+  const icons = {
+    home: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    ),
+    sales: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect width="20" height="14" x="2" y="5" rx="2"/>
+        <line x1="2" x2="22" y1="10" y2="10"/>
+      </svg>
+    ),
+    cash: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4l3 3"/>
+      </svg>
+    ),
+    expense: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" x2="8" y1="13" y2="13"/>
+        <line x1="16" x2="8" y1="17" y2="17"/>
+        <line x1="10" x2="8" y1="9"  y2="9"/>
+      </svg>
+    ),
+    prod: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="m2 17 10 5 10-5"/>
+        <path d="m2 12 10 5 10-5"/>
+      </svg>
+    ),
+    inv: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+        <line x1="3" x2="21" y1="9" y2="9"/>
+        <line x1="9" x2="9" y1="21" y2="9"/>
+      </svg>
+    ),
+    settings: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+    ),
+    plus: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+        <line x1="12" x2="12" y1="5" y2="19"/>
+        <line x1="5"  x2="19" y1="12" y2="12"/>
+      </svg>
+    ),
+    trash: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="m19 6-.867 12.142A2 2 0 0 1 16.138 20H7.862a2 2 0 0 1-1.995-1.858L5 6"/>
+        <path d="M10 11v6"/>
+        <path d="M14 11v6"/>
+        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+      </svg>
+    ),
+    logout: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" x2="9" y1="12" y2="12"/>
+      </svg>
+    ),
+    check: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    ),
+    warn: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/>
+        <line x1="12" x2="12"    y1="9"  y2="13"/>
+        <line x1="12" x2="12.01" y1="17" y2="17"/>
+      </svg>
+    ),
+    sync: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+        <path d="M21 3v5h-5"/>
+        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+        <path d="M8 16H3v5"/>
+      </svg>
+    ),
+  };
+  return icons[name] || null;
+}
+
+// ─── Spinner ──────────────────────────────────────────────────
+function Spinner() {
+  return (
+    <span
+      className="anim-spin"
+      style={{
+        display: "inline-block",
+        width: 18, height: 18,
+        border: "2.5px solid rgba(255,255,255,.3)",
+        borderTopColor: "#fff",
+        borderRadius: "50%",
+      }}
+    />
+  );
+}
+
+// ─── Modal (bottom sheet) ─────────────────────────────────────
+function Modal({ open, onClose, title, children }) {
+  if (!open) return null;
+  return (
+    <div className="overlay" onClick={onClose}>
+      <div className="sheet anim-slide-up" onClick={e => e.stopPropagation()}>
+        <div className="sheet-handle" />
+        {title && (
+          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, fontFamily: "'Baloo 2', cursive" }}>
+            {title}
+          </h3>
+        )}
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─── Confirm Modal ────────────────────────────────────────────
+function ConfirmModal({ open, msg, onConfirm, onCancel }) {
+  return (
+    <Modal open={open} onClose={onCancel} title="Are you sure?">
+      <p style={{ color: "var(--tx2)", marginBottom: 20 }}>{msg}</p>
+      <div className="row gap-2">
+        <button className="btn btn-ghost btn-full" onClick={onCancel}>Cancel</button>
+        <button className="btn btn-primary btn-full" onClick={onConfirm}>Confirm</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── Bottom Navigation ────────────────────────────────────────
+function BottomNav({ route, navigate, user }) {
+  const cashierTabs = [
+    { path: "/sales",      label: "Sales",      icon: "sales" },
+    { path: "/cash-count", label: "Cash Count", icon: "cash"  },
+  ];
+  const adminTabs = [
+    { path: "/dashboard",  label: "Dashboard", icon: "home"    },
+    { path: "/sales",      label: "Sales",     icon: "sales"   },
+    { path: "/expenses",   label: "Expenses",  icon: "expense" },
+    { path: "/production", label: "Produce",   icon: "prod"    },
+    { path: "/products",   label: "Products",  icon: "inv"     },
+  ];
+  const tabs = user.role === "cashier" ? cashierTabs : adminTabs;
+
+  return (
+    <nav className="bottom-nav">
+      {tabs.map(t => (
+        <button
+          key={t.path}
+          className={`nav-item ${route === t.path ? "active" : ""}`}
+          onClick={() => navigate(t.path)}
+        >
+          <Icon name={t.icon} size={22} />
+          <span>{t.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+// ─── Page Header ──────────────────────────────────────────────
+function PageHeader({ title, sub, action, navigate, showLogout, user, pendingCount }) {
+  const { logout } = React.useContext(AuthCtx);
+
+  return (
+    <div
+      className="page-header"
+      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}
+    >
+      <div>
+        <div className="page-title display">{title}</div>
+        {sub && <div className="page-sub">{sub}</div>}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        {pendingCount > 0 && (
+          <span
+            title="Pending sync"
+            style={{
+              background: "var(--y400)", color: "var(--g900)",
+              borderRadius: 99, padding: "3px 8px",
+              fontSize: 11, fontWeight: 700,
+              display: "flex", alignItems: "center", gap: 4,
+            }}
+          >
+            <Icon name="sync" size={12} />{pendingCount}
+          </span>
+        )}
+
+        {action}
+
+        {showLogout && (
+          <button
+            className="btn btn-ghost btn-sm"
+            style={{ padding: "8px 10px" }}
+            onClick={() => { logout(); window.location.hash = "/login"; }}
+          >
+            <Icon name="logout" size={16} />
+          </button>
+        )}
+
+        {user?.role === "admin" && (
+          <button
+            className="btn btn-sm"
+            style={{ background: "var(--g50)", color: "var(--g700)", padding: "8px 10px" }}
+            onClick={() => navigate("/settings")}
+          >
+            <Icon name="settings" size={16} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Layout (page shell + nav) ────────────────────────────────
+function Layout({ children, route, navigate }) {
+  const { user }  = React.useContext(AuthCtx);
+  const { state } = React.useContext(AppCtx);
+
+  return (
+    <div className="page">
+      {React.cloneElement(children, {
+        navigate,
+        user,
+        pendingCount: state.pendingSync.length,
+      })}
+      <BottomNav route={route} navigate={navigate} user={user} />
+    </div>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   pages/LoginPage.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// pages/LoginPage.js
+// ═══════════════════════════════════════════════════════════════
+
+function LoginPage({ navigate }) {
+  const { login } = React.useContext(AuthCtx);
+  const [email,   setEmail]   = React.useState("admin@beezybuddies.ph");
+  const [pass,    setPass]    = React.useState("");
+  const [err,     setErr]     = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !pass) { setErr("Fill in all fields."); return; }
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 400)); // brief UX delay
+    const user = login(email, pass);
+    if (!user) { setErr("Invalid email or password."); setLoading(false); return; }
+    window.location.hash = user.role === "cashier" ? "/sales" : "/dashboard";
+  };
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(160deg, var(--g800) 0%, var(--g600) 60%, var(--y400) 160%)",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      padding: 24,
+    }}>
+      <div style={{ width: "100%", maxWidth: 360 }}>
+
+        {/* ── Logo ── */}
+        <div className="text-center" style={{ marginBottom: 40 }}>
+          <div style={{ fontSize: 64, lineHeight: 1 }}>🐝</div>
+          <h1 className="display" style={{ color: "#fff", fontSize: 30, fontWeight: 800, marginTop: 12, lineHeight: 1.1 }}>
+            Beezy Buddies
+          </h1>
+          <div style={{ color: "rgba(255,255,255,.75)", fontSize: 14, marginTop: 4, fontWeight: 500 }}>
+            Buko Pie atbp • POS & Tracker
+          </div>
+        </div>
+
+        {/* ── Card ── */}
+        <div className="card anim-pop" style={{ padding: 24 }}>
+          <div style={{ marginBottom: 20, textAlign: "center" }}>
+            <div style={{ fontWeight: 700, fontSize: 18, color: "var(--g900)" }}>Welcome back!</div>
+            <div style={{ fontSize: 13, color: "var(--tx3)", marginTop: 2 }}>Sign in to continue</div>
+          </div>
+
+          <div className="field mb-3">
+            <label className="label">Email</label>
+            <input
+              className="input" type="email"
+              value={email}
+              onChange={e => { setEmail(e.target.value); setErr(""); }}
+              placeholder="you@beezybuddies.ph"
+            />
+          </div>
+
+          <div className="field mb-3">
+            <label className="label">Password</label>
+            <input
+              className="input" type="password"
+              value={pass}
+              onChange={e => { setPass(e.target.value); setErr(""); }}
+              placeholder="••••••••"
+              onKeyDown={e => e.key === "Enter" && handleLogin()}
+            />
+          </div>
+
+          {err && (
+            <div style={{ color: "var(--r500)", fontSize: 13, marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+              <Icon name="warn" size={14} />{err}
+            </div>
+          )}
+
+          <button className="btn btn-primary btn-full btn-lg" onClick={handleLogin} disabled={loading}>
+            {loading ? <Spinner /> : "Sign In"}
+          </button>
+
+          {/* Demo credentials hint */}
+          <div style={{ marginTop: 20, background: "var(--g50)", borderRadius: 10, padding: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--tx2)", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 6 }}>
+              Demo Credentials
+            </div>
+            <div style={{ fontSize: 12, color: "var(--tx2)" }}>
+              <div>👑 Admin: admin@beezybuddies.ph / admin2024!</div>
+              <div style={{ marginTop: 3 }}>🛒 Cashier: cashier@beezybuddies.ph / cashier2024</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   pages/SalesPage.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// pages/SalesPage.js
+// ═══════════════════════════════════════════════════════════════
+
+function SalesPage({ navigate, user, pendingCount }) {
+  const { state, addSale } = React.useContext(AppCtx);
+  const toast = React.useContext(ToastCtx);
+
+  const EMPTY_LINE = { product: "", qty: 1, price: "", discountPct: 0 };
+  const [lines,       setLines]       = React.useState([{ ...EMPTY_LINE }]);
+  const [cashAmt,     setCashAmt]     = React.useState("");
+  const [gcashAmt,    setGcashAmt]    = React.useState("");
+  const [saving,      setSaving]      = React.useState(false);
+  const [errors,      setErrors]      = React.useState({});
+  const [showHistory, setShowHistory] = React.useState(false);
+  const [savedAnim,   setSavedAnim]   = React.useState(false);
+
+  // ── Line management ──────────────────────────────────────────
+  const updateLine = (i, field, val) => {
+    const copy = [...lines];
+    copy[i] = { ...copy[i], [field]: val };
+    setLines(copy);
+    setErrors({});
+  };
+  const addLine    = ()  => setLines([...lines, { ...EMPTY_LINE }]);
+  const removeLine = (i) => { if (lines.length > 1) setLines(lines.filter((_, x) => x !== i)); };
+
+  // ── Revenue calc ─────────────────────────────────────────────
+  const lineRevenue = (l) => {
+    if (!l.qty || !l.price) return 0;
+    return calcLineRev(+l.qty, +l.price, +l.discountPct || 0);
+  };
+  const totalRevenue = lines.reduce((s, l) => s + lineRevenue(l), 0);
+  const totalPayment = (+cashAmt || 0) + (+gcashAmt || 0);
+  const change       = totalPayment - totalRevenue;
+
+  // ── Validation ───────────────────────────────────────────────
+  const validate = () => {
+    const e = {};
+    lines.forEach((l, i) => {
+      if (!l.product)              e[`product_${i}`] = true;
+      if (!l.price || +l.price <= 0) e[`price_${i}`] = true;
+      if (!l.qty   || +l.qty   <= 0) e[`qty_${i}`]   = true;
+    });
+    if (totalPayment < totalRevenue) e.payment = true;
+    return e;
+  };
+
+  // ── Save ─────────────────────────────────────────────────────
+  const handleSave = async () => {
+    const errs = validate();
+    if (Object.keys(errs).length > 0) { setErrors(errs); toast("Please fix the errors.", "err"); return; }
+
+    setSaving(true);
+    const recPct = state.recovery.percentage;
+    const sale = {
+      id:             genId(),
+      date:           todayS(),
+      timestamp:      nowISO(),
+      created_by:     user.name,
+      lines:          lines.map(l => ({
+        product:     l.product,
+        qty:         +l.qty,
+        price:       +l.price,
+        discountPct: +l.discountPct || 0,
+        revenue:     lineRevenue(l),
+      })),
+      revenue:         totalRevenue,
+      cash_amount:     +cashAmt  || 0,
+      gcash_amount:    +gcashAmt || 0,
+      recovery_pct:    recPct,
+      recovery_amount: totalRevenue * (recPct / 100),
+    };
+
+    await addSale(sale, state.products);
+    setSaving(false);
+    setSavedAnim(true);
+    setTimeout(() => setSavedAnim(false), 1500);
+    toast(`Saved! ${peso(totalRevenue)} recorded. 🎉`);
+    setLines([{ ...EMPTY_LINE }]);
+    setCashAmt("");
+    setGcashAmt("");
+  };
+
+  const todaySales   = state.sales.filter(s => s.date === todayS());
+  const todayRevenue = todaySales.reduce((s, x) => s + (x.revenue || 0), 0);
+
+  return (
+    <div className="page">
+      <PageHeader
+        title="🛒 Sales"
+        sub={`Today: ${peso(todayRevenue)}`}
+        navigate={navigate}
+        showLogout
+        user={user}
+        pendingCount={pendingCount}
+        action={
+          <button className="btn btn-sm" style={{ background: "var(--g50)", color: "var(--g700)", padding: "8px 10px" }} onClick={() => setShowHistory(true)}>
+            History
+          </button>
+        }
+      />
+
+      <div className="page-body">
+        <div style={{ fontSize: 13, color: "var(--tx3)", fontWeight: 600, marginBottom: 12 }}>
+          📅 {fullD(todayS())}
+        </div>
+
+        {/* ── Line items ── */}
+        {lines.map((l, i) => (
+          <div key={i} className="card mb-3 anim-fade" style={{ animationDelay: `${i * 0.05}s` }}>
+            <div className="card-body">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                <span style={{ fontWeight: 700, fontSize: 14, color: "var(--g700)" }}>Item #{i + 1}</span>
+                {lines.length > 1 && (
+                  <button className="btn btn-sm btn-danger" style={{ padding: "4px 8px", borderRadius: 8 }} onClick={() => removeLine(i)}>
+                    <Icon name="trash" size={14} />
+                  </button>
+                )}
+              </div>
+
+              <div className="field mb-2">
+                <label className="label">Product</label>
+                <select
+                  className={`input select ${errors[`product_${i}`] ? "input-error" : ""}`}
+                  value={l.product}
+                  onChange={e => updateLine(i, "product", e.target.value)}
+                >
+                  <option value="">Select product...</option>
+                  {state.products.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
+                </select>
+              </div>
+
+              <div className="row gap-2 mb-2">
+                <div className="field">
+                  <label className="label">Qty</label>
+                  <input
+                    className={`input ${errors[`qty_${i}`] ? "input-error" : ""}`}
+                    type="number" min="1"
+                    value={l.qty}
+                    onChange={e => updateLine(i, "qty", e.target.value)}
+                    placeholder="1"
+                  />
+                </div>
+                <div className="field">
+                  <label className="label">Price (₱)</label>
+                  <input
+                    className={`input ${errors[`price_${i}`] ? "input-error" : ""}`}
+                    type="number" min="0" step="0.01"
+                    value={l.price}
+                    onChange={e => updateLine(i, "price", e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              <div className="field">
+                <label className="label">Discount %</label>
+                <input
+                  className="input" type="number" min="0" max="100"
+                  value={l.discountPct}
+                  onChange={e => updateLine(i, "discountPct", e.target.value)}
+                  placeholder="0"
+                />
+              </div>
+
+              {l.qty && l.price && (
+                <div style={{ marginTop: 10, background: "var(--g50)", borderRadius: 8, padding: "8px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 13, color: "var(--tx2)" }}>Line total</span>
+                  <span style={{ fontWeight: 800, color: "var(--g700)", fontSize: 16 }}>{peso(lineRevenue(l))}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <button className="btn btn-ghost btn-full mb-3" onClick={addLine}>
+          <Icon name="plus" size={16} /> Add Another Item
+        </button>
+
+        {/* ── Payment ── */}
+        <div className="card mb-3">
+          <div className="card-body">
+            <div style={{ fontWeight: 700, fontSize: 15, color: "var(--g900)", marginBottom: 12 }}>💳 Payment</div>
+            <div className="row gap-2 mb-2">
+              <div className="field">
+                <label className="label">Cash (₱)</label>
+                <input className="input" type="number" min="0" step="0.01" value={cashAmt} onChange={e => setCashAmt(e.target.value)} placeholder="0.00" />
+              </div>
+              <div className="field">
+                <label className="label">GCash (₱)</label>
+                <input className="input" type="number" min="0" step="0.01" value={gcashAmt} onChange={e => setGcashAmt(e.target.value)} placeholder="0.00" />
+              </div>
+            </div>
+
+            {errors.payment && (
+              <div style={{ color: "var(--r500)", fontSize: 13, marginBottom: 8, display: "flex", gap: 5 }}>
+                <Icon name="warn" size={13} /> Payment is less than total.
+              </div>
+            )}
+
+            <div style={{ background: "var(--g50)", borderRadius: 10, padding: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 14, color: "var(--tx2)" }}>Total Revenue</span>
+                <span style={{ fontWeight: 800, fontSize: 18, color: "var(--g700)" }}>{peso(totalRevenue)}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 14, color: "var(--tx2)" }}>Total Payment</span>
+                <span style={{ fontWeight: 700, fontSize: 15 }}>{peso(totalPayment)}</span>
+              </div>
+              {totalPayment >= totalRevenue && totalRevenue > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 14, color: "var(--tx2)" }}>Change</span>
+                  <span style={{ fontWeight: 700, fontSize: 15, color: change >= 0 ? "var(--g700)" : "var(--r500)" }}>
+                    {peso(change)}
+                  </span>
+                </div>
+              )}
+              <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--g200)", display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 12, color: "var(--tx3)" }}>Recovery ({state.recovery.percentage}%)</span>
+                <span style={{ fontSize: 12, color: "var(--tx3)" }}>{peso(totalRevenue * (state.recovery.percentage / 100))}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button
+          className={`btn btn-primary btn-full btn-lg ${savedAnim ? "anim-pop" : ""}`}
+          onClick={handleSave}
+          disabled={saving || totalRevenue === 0}
+        >
+          {saving ? <><Spinner /> Saving...</> : <><Icon name="check" size={18} /> Save Transaction</>}
+        </button>
+      </div>
+
+      {/* ── History modal ── */}
+      <Modal open={showHistory} onClose={() => setShowHistory(false)} title="📜 Sales History">
+        <div style={{ maxHeight: "50vh", overflowY: "auto" }}>
+          {todaySales.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🧾</div>
+              <div className="empty-title">No sales today</div>
+            </div>
+          ) : (
+            [...todaySales].reverse().map(s => (
+              <div key={s.id} className="list-item">
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{s.lines.map(l => `${l.qty}× ${l.product}`).join(", ")}</div>
+                    <div style={{ fontSize: 12, color: "var(--tx3)", marginTop: 2 }}>
+                      {new Date(s.timestamp).toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })} · By {s.created_by}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontWeight: 800, color: "var(--g700)" }}>{peso(s.revenue)}</div>
+                    <div style={{ fontSize: 11, color: "var(--tx3)" }}>
+                      {s.cash_amount  > 0 ? `₱${s.cash_amount} cash`  : ""}
+                      {s.gcash_amount > 0 ? ` GCash ₱${s.gcash_amount}` : ""}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <button className="btn btn-ghost btn-full mt-3" onClick={() => setShowHistory(false)}>Close</button>
+      </Modal>
+    </div>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   pages/CashCountPage.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// pages/CashCountPage.js
+// ═══════════════════════════════════════════════════════════════
+
+function CashCountPage({ navigate, user, pendingCount }) {
+  const { state } = React.useContext(AppCtx);
+  const [startCash,  setStartCash]  = React.useState("");
+  const [actualCash, setActualCash] = React.useState("");
+
+  const todaySales    = state.sales.filter(s => s.date === todayS());
+  const todayExpenses = state.expenses.filter(e => e.date === todayS());
+
+  const cashSales    = todaySales.reduce((s, x) => s + (+x.cash_amount || 0), 0);
+  const cashExpenses = todayExpenses
+    .filter(e => e.payment_method === "Cash")
+    .reduce((s, x) => s + (+x.amount || 0), 0);
+
+  const expectedCash = (+startCash || 0) + cashSales - cashExpenses;
+  const diff         = (+actualCash || 0) - expectedCash;
+  const hasBoth      = actualCash !== "" && startCash !== "";
+
+  const diffColor = diff > 0 ? "#b45309" : diff < 0 ? "var(--r500)" : "var(--g700)";
+  const diffLabel = Math.abs(diff) < 1 ? "✅ Balanced" : diff > 0 ? "📈 Overage" : "📉 Shortage";
+  const diffBg    = Math.abs(diff) < 1 ? "var(--g50)" : diff > 0 ? "var(--y100)" : "var(--r100)";
+
+  return (
+    <div className="page">
+      <PageHeader
+        title="💵 Cash Count"
+        sub="End-of-day reconciliation"
+        navigate={navigate}
+        showLogout
+        user={user}
+        pendingCount={pendingCount}
+      />
+      <div className="page-body">
+
+        {/* ── Inputs ── */}
+        <div className="card mb-3">
+          <div className="card-body">
+            <div style={{ fontWeight: 700, marginBottom: 12, color: "var(--g900)" }}>📅 {fullD(todayS())}</div>
+            <div className="field mb-2">
+              <label className="label">Starting Cash (₱)</label>
+              <input className="input" type="number" min="0" step="0.01" value={startCash} onChange={e => setStartCash(e.target.value)} placeholder="0.00" />
+            </div>
+            <div className="field">
+              <label className="label">Actual Cash on Hand (₱)</label>
+              <input className="input" type="number" min="0" step="0.01" value={actualCash} onChange={e => setActualCash(e.target.value)} placeholder="0.00" />
+            </div>
+          </div>
+        </div>
+
+        {/* ── Summary calc ── */}
+        <div className="card mb-3">
+          <div className="card-body">
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12, color: "var(--g900)" }}>📊 Today's Summary</div>
+
+            {[
+              ["Starting Cash",  peso(+startCash || 0)],
+              ["Cash Sales",     peso(cashSales)],
+              ["Cash Expenses",  `−${peso(cashExpenses)}`],
+            ].map(([label, value]) => (
+              <div key={label} style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, paddingBottom: 8, borderBottom: "1px solid var(--border)" }}>
+                <span style={{ fontSize: 14, color: "var(--tx2)" }}>{label}</span>
+                <span style={{ fontWeight: 700, fontSize: 14 }}>{value}</span>
+              </div>
+            ))}
+
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+              <span style={{ fontWeight: 700, fontSize: 15 }}>Expected Cash</span>
+              <span style={{ fontWeight: 800, fontSize: 16, color: "var(--g700)" }}>{peso(expectedCash)}</span>
+            </div>
+
+            {hasBoth && (
+              <div style={{ marginTop: 8, borderRadius: 12, padding: 14, background: diffBg, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{diffLabel}</div>
+                  <div style={{ fontSize: 12, color: "var(--tx2)", marginTop: 2 }}>
+                    {Math.abs(diff) < 1 ? "Cash matches perfectly!" : `Difference of ${peso(Math.abs(diff))}`}
+                  </div>
+                </div>
+                <div style={{ fontWeight: 800, fontSize: 22, color: diffColor }}>
+                  {diff === 0 ? "₱0" : (diff > 0 ? "+" : "") + peso(diff)}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Today breakdown ── */}
+        <div className="card">
+          <div className="card-body">
+            <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10, color: "var(--g900)" }}>Today's Breakdown</div>
+            <div className="grid-2" style={{ gap: 8 }}>
+              {[
+                ["Transactions",   todaySales.length,                                               false],
+                ["Total Revenue",  peso(todaySales.reduce((s, x) => s + (x.revenue || 0), 0)),      false],
+                ["Cash Sales",     peso(cashSales),                                                  false],
+                ["GCash Sales",    peso(todaySales.reduce((s, x) => s + (+x.gcash_amount || 0), 0)), false],
+              ].map(([label, value]) => (
+                <div key={label} style={{ background: "var(--g50)", borderRadius: 10, padding: 12, textAlign: "center" }}>
+                  <div style={{ fontSize: 12, color: "var(--tx3)", fontWeight: 600 }}>{label}</div>
+                  <div style={{ fontWeight: 800, fontSize: 16, color: "var(--g700)" }}>{value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   pages/ExpensesPage.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// pages/ExpensesPage.js
+// ═══════════════════════════════════════════════════════════════
+
+function ExpensesPage({ navigate, user, pendingCount }) {
+  const { state, addExpense } = React.useContext(AppCtx);
+  const toast = React.useContext(ToastCtx);
+
+  const [form, setForm] = React.useState({
+    item_name: "", category: "Ingredients", supplier: "", amount: "", payment_method: "Cash",
+  });
+  const [errors,   setErrors]   = React.useState({});
+  const [saving,   setSaving]   = React.useState(false);
+  const [filter,   setFilter]   = React.useState("all");
+  const [showForm, setShowForm] = React.useState(false);
+
+  const todayExpenses = state.expenses.filter(e => e.date === todayS());
+  const todayTotal    = todayExpenses.reduce((s, e) => s + (+e.amount || 0), 0);
+
+  const updateForm = (k, v) => { setForm(f => ({ ...f, [k]: v })); setErrors({}); };
+
+  const validate = () => {
+    const e = {};
+    if (!form.item_name.trim())         e.item_name = true;
+    if (!form.amount || +form.amount <= 0) e.amount = true;
+    return e;
+  };
+
+  const handleSave = async () => {
+    const errs = validate();
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    setSaving(true);
+    const exp = {
+      id: genId(), date: todayS(), timestamp: nowISO(), created_by: user.name,
+      ...form, amount: +form.amount,
+    };
+    await addExpense(exp);
+    setSaving(false);
+    toast("Expense saved! 📝");
+    setForm({ item_name: "", category: "Ingredients", supplier: "", amount: "", payment_method: "Cash" });
+    setShowForm(false);
+  };
+
+  const cats  = ["all", ...EXPENSE_CATEGORIES];
+  const shown = filter === "all" ? todayExpenses : todayExpenses.filter(e => e.category === filter);
+
+  return (
+    <div className="page">
+      <PageHeader
+        title="📋 Expenses"
+        sub={`Today: ${peso(todayTotal)}`}
+        navigate={navigate}
+        user={user}
+        pendingCount={pendingCount}
+        action={
+          <button className="btn btn-primary btn-sm" onClick={() => setShowForm(true)}>
+            <Icon name="plus" size={14} /> Add
+          </button>
+        }
+      />
+      <div className="page-body">
+
+        {/* ── KPIs ── */}
+        <div className="grid-2 mb-3">
+          <div className="stat-card">
+            <div className="stat-lbl">Today's Expenses</div>
+            <div className="stat-val">{peso(todayTotal)}</div>
+          </div>
+          <div className="stat-card yellow">
+            <div className="stat-lbl" style={{ color: "rgba(0,0,0,.6)" }}>Transactions</div>
+            <div className="stat-val">{todayExpenses.length}</div>
+          </div>
+        </div>
+
+        {/* ── Category filter ── */}
+        <div style={{ overflowX: "auto", display: "flex", gap: 8, paddingBottom: 8, marginBottom: 12 }}>
+          {cats.map(c => (
+            <button key={c} className={`chip ${filter === c ? "active" : ""}`} style={{ whiteSpace: "nowrap" }} onClick={() => setFilter(c)}>
+              {c === "all" ? "All" : c}
+            </button>
+          ))}
+        </div>
+
+        {/* ── List ── */}
+        <div className="card">
+          {shown.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🛍️</div>
+              <div className="empty-title">No expenses today</div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>Tap + Add to record one.</div>
+            </div>
+          ) : (
+            [...shown].reverse().map(e => (
+              <div key={e.id} className="list-item">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{e.item_name}</div>
+                    <div style={{ display: "flex", gap: 6, marginTop: 4, flexWrap: "wrap" }}>
+                      <span className="badge badge-green">{e.category}</span>
+                      <span className={`badge ${e.payment_method === "Cash" ? "badge-gray" : "badge-yellow"}`}>
+                        {e.payment_method}
+                      </span>
+                    </div>
+                    {e.supplier && <div style={{ fontSize: 12, color: "var(--tx3)", marginTop: 4 }}>{e.supplier}</div>}
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontWeight: 800, fontSize: 16, color: "var(--r500)" }}>{peso(e.amount)}</div>
+                    <div style={{ fontSize: 11, color: "var(--tx3)", marginTop: 2 }}>
+                      {new Date(e.timestamp).toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* ── Add Expense Modal ── */}
+      <Modal open={showForm} onClose={() => setShowForm(false)} title="➕ New Expense">
+        <div className="field mb-2">
+          <label className="label">Item Name *</label>
+          <input className={`input ${errors.item_name ? "input-error" : ""}`} value={form.item_name} onChange={e => updateForm("item_name", e.target.value)} placeholder="e.g. Flour (25kg)" />
+        </div>
+        <div className="row gap-2 mb-2">
+          <div className="field">
+            <label className="label">Category</label>
+            <select className="input select" value={form.category} onChange={e => updateForm("category", e.target.value)}>
+              {EXPENSE_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label className="label">Payment</label>
+            <select className="input select" value={form.payment_method} onChange={e => updateForm("payment_method", e.target.value)}>
+              <option>Cash</option>
+              <option>GCash</option>
+            </select>
+          </div>
+        </div>
+        <div className="field mb-2">
+          <label className="label">Supplier</label>
+          <input className="input" value={form.supplier} onChange={e => updateForm("supplier", e.target.value)} placeholder="Optional" />
+        </div>
+        <div className="field mb-3">
+          <label className="label">Amount (₱) *</label>
+          <input className={`input ${errors.amount ? "input-error" : ""}`} type="number" min="0" step="0.01" value={form.amount} onChange={e => updateForm("amount", e.target.value)} placeholder="0.00" />
+        </div>
+        <div className="row gap-2">
+          <button className="btn btn-ghost btn-full" onClick={() => setShowForm(false)}>Cancel</button>
+          <button className="btn btn-primary btn-full" onClick={handleSave} disabled={saving}>
+            {saving ? <Spinner /> : "Save Expense"}
+          </button>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   pages/ProductionPage.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// pages/ProductionPage.js
+// ═══════════════════════════════════════════════════════════════
+
+function ProductionPage({ navigate, user, pendingCount }) {
+  const { state, addProduction } = React.useContext(AppCtx);
+  const toast = React.useContext(ToastCtx);
+
+  const [form,     setForm]     = React.useState({ product: "", qty_produced: "" });
+  const [saving,   setSaving]   = React.useState(false);
+  const [showForm, setShowForm] = React.useState(false);
+  const [errors,   setErrors]   = React.useState({});
+  const [viewDate, setViewDate] = React.useState(todayS());
+
+  const dayProd = state.production.filter(p => p.date === viewDate);
+
+  // Units sold per product name on viewDate
+  const soldMap = React.useMemo(() => {
+    const m = {};
+    state.sales
+      .filter(s => s.date === viewDate)
+      .forEach(s => s.lines.forEach(l => { m[l.product] = (m[l.product] || 0) + l.qty; }));
+    return m;
+  }, [state.sales, viewDate]);
+
+  // Units produced per product name on viewDate
+  const prodMap = React.useMemo(() => {
+    const m = {};
+    dayProd.forEach(p => { m[p.product] = (m[p.product] || 0) + p.qty_produced; });
+    return m;
+  }, [dayProd]);
+
+  // All products that have either production or are manufactured type
+  const allProducts = [...new Set([
+    ...Object.keys(prodMap),
+    ...state.products.filter(p => p.type === "manufactured").map(p => p.name),
+  ])];
+
+  const validate = () => {
+    const e = {};
+    if (!form.product)                          e.product = true;
+    if (!form.qty_produced || +form.qty_produced <= 0) e.qty = true;
+    return e;
+  };
+
+  const handleSave = async () => {
+    const errs = validate();
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    setSaving(true);
+    const prod = {
+      id: genId(), date: viewDate, timestamp: nowISO(), created_by: user.name,
+      product: form.product, qty_produced: +form.qty_produced,
+    };
+    await addProduction(prod);
+    setSaving(false);
+    toast("Production logged! 🏭");
+    setForm({ product: "", qty_produced: "" });
+    setShowForm(false);
+  };
+
+  return (
+    <div className="page">
+      <PageHeader
+        title="🏭 Production"
+        sub="Daily production log"
+        navigate={navigate}
+        user={user}
+        pendingCount={pendingCount}
+        action={
+          <button className="btn btn-primary btn-sm" onClick={() => setShowForm(true)}>
+            <Icon name="plus" size={14} /> Log
+          </button>
+        }
+      />
+      <div className="page-body">
+
+        <div className="field mb-3">
+          <label className="label">View Date</label>
+          <input className="input" type="date" value={viewDate} onChange={e => setViewDate(e.target.value)} style={{ maxWidth: 200 }} />
+        </div>
+
+        {allProducts.length === 0 ? (
+          <div className="empty-state card">
+            <div className="card-body">
+              <div className="empty-icon">🥧</div>
+              <div className="empty-title">No production data</div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>Log production to track output.</div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {allProducts.map(name => {
+              const produced = prodMap[name] || 0;
+              const sold     = soldMap[name] || 0;
+              const unsold   = Math.max(0, produced - sold);
+              return (
+                <div key={name} className="card">
+                  <div className="card-body">
+                    <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>{name}</div>
+                    <div className="grid-3">
+                      <div style={{ background: "var(--g50)",  borderRadius: 8, padding: 10, textAlign: "center" }}>
+                        <div style={{ fontSize: 11, color: "var(--tx3)",  fontWeight: 600 }}>Produced</div>
+                        <div style={{ fontWeight: 800, fontSize: 20, color: "var(--g700)"  }}>{produced}</div>
+                      </div>
+                      <div style={{ background: "var(--y100)", borderRadius: 8, padding: 10, textAlign: "center" }}>
+                        <div style={{ fontSize: 11, color: "#b45309",    fontWeight: 600 }}>Sold</div>
+                        <div style={{ fontWeight: 800, fontSize: 20, color: "#b45309"    }}>{sold}</div>
+                      </div>
+                      <div style={{ background: "var(--r100)", borderRadius: 8, padding: 10, textAlign: "center" }}>
+                        <div style={{ fontSize: 11, color: "var(--r500)", fontWeight: 600 }}>Unsold</div>
+                        <div style={{ fontWeight: 800, fontSize: 20, color: "var(--r500)" }}>{unsold}</div>
+                      </div>
+                    </div>
+                    {produced > 0 && (
+                      <div style={{ marginTop: 10 }}>
+                        <div className="prog-bar">
+                          <div className="prog-fill yellow" style={{ width: `${pct(sold, produced)}%` }} />
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--tx3)", marginTop: 4, textAlign: "right" }}>
+                          {pct(sold, produced)}% sell-through
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Log production modal ── */}
+      <Modal open={showForm} onClose={() => setShowForm(false)} title="🏭 Log Production">
+        <div className="field mb-2">
+          <label className="label">Product *</label>
+          <select
+            className={`input select ${errors.product ? "input-error" : ""}`}
+            value={form.product}
+            onChange={e => { setForm(f => ({ ...f, product: e.target.value })); setErrors({}); }}
+          >
+            <option value="">Select product...</option>
+            {state.products.filter(p => p.type === "manufactured").map(p => (
+              <option key={p.id} value={p.name}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="field mb-3">
+          <label className="label">Quantity Produced *</label>
+          <input
+            className={`input ${errors.qty ? "input-error" : ""}`}
+            type="number" min="1"
+            value={form.qty_produced}
+            onChange={e => { setForm(f => ({ ...f, qty_produced: e.target.value })); setErrors({}); }}
+            placeholder="0"
+          />
+        </div>
+        <div className="row gap-2">
+          <button className="btn btn-ghost btn-full" onClick={() => setShowForm(false)}>Cancel</button>
+          <button className="btn btn-primary btn-full" onClick={handleSave} disabled={saving}>
+            {saving ? <Spinner /> : "Log Production"}
+          </button>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   pages/ProductsPage.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// pages/ProductsPage.js
+// ═══════════════════════════════════════════════════════════════
+
+const TYPE_META = {
+  manufactured: { label: "Manufactured", badge: "badge-green",  emoji: "🏭" },
+  resale:       { label: "Resale",        badge: "badge-yellow", emoji: "🛒" },
+  custom:       { label: "Custom",        badge: "badge-gray",   emoji: "✏️" },
+};
+
+function ProductsPage({ navigate, user, pendingCount }) {
+  const { state, dispatch } = React.useContext(AppCtx);
+  const toast = React.useContext(ToastCtx);
+
+  const BLANK = { name: "", type: "manufactured" };
+  const [showForm,      setShowForm]      = React.useState(false);
+  const [editing,       setEditing]       = React.useState(null);
+  const [form,          setForm]          = React.useState(BLANK);
+  const [deleteTarget,  setDeleteTarget]  = React.useState(null);
+  const [filterType,    setFilterType]    = React.useState("all");
+
+  const openAdd  = ()  => { setEditing(null); setForm(BLANK); setShowForm(true); };
+  const openEdit = (p) => { setEditing(p); setForm({ name: p.name, type: p.type }); setShowForm(true); };
+  const closeForm = () => { setShowForm(false); setEditing(null); setForm(BLANK); };
+
+  const handleSave = () => {
+    if (!form.name.trim()) { toast("Enter a product name.", "err"); return; }
+    if (editing) {
+      dispatch({ type: "EDIT_PRODUCT", payload: { ...editing, name: form.name.trim(), type: form.type } });
+      toast("Product updated! ✅");
+    } else {
+      const duplicate = state.products.some(p => p.name.toLowerCase() === form.name.trim().toLowerCase());
+      if (duplicate) { toast("A product with that name already exists.", "err"); return; }
+      dispatch({ type: "ADD_PRODUCT", payload: { id: genId(), name: form.name.trim(), type: form.type } });
+      toast("Product added! 🧁");
+    }
+    closeForm();
+  };
+
+  const handleDelete = (id) => {
+    dispatch({ type: "DEL_PRODUCT", payload: id });
+    toast("Product removed.");
+    setDeleteTarget(null);
+  };
+
+  const shown = filterType === "all"
+    ? state.products
+    : state.products.filter(p => p.type === filterType);
+
+  return (
+    <div className="page">
+      <PageHeader
+        title="🧁 Products"
+        sub={`${state.products.length} product${state.products.length !== 1 ? "s" : ""}`}
+        navigate={navigate}
+        user={user}
+        pendingCount={pendingCount}
+        action={
+          <button className="btn btn-primary btn-sm" onClick={openAdd}>
+            <Icon name="plus" size={14} /> Add
+          </button>
+        }
+      />
+
+      <div className="page-body">
+
+        {/* ── Filter chips ── */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, overflowX: "auto", paddingBottom: 2 }}>
+          {[["all", "All"], ["manufactured", "Manufactured"], ["resale", "Resale"], ["custom", "Custom"]].map(([v, l]) => (
+            <button
+              key={v}
+              className={`chip ${filterType === v ? "active" : ""}`}
+              style={{ whiteSpace: "nowrap" }}
+              onClick={() => setFilterType(v)}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Product list ── */}
+        {shown.length === 0 ? (
+          <div className="empty-state card">
+            <div className="card-body">
+              <div className="empty-icon">🧁</div>
+              <div className="empty-title">
+                {filterType === "all" ? "No products yet" : "No products in this category"}
+              </div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>Tap <strong>+ Add</strong> to create your first product.</div>
+            </div>
+          </div>
+        ) : (
+          <div className="card anim-fade">
+            {shown.map(p => {
+              const meta = TYPE_META[p.type] || TYPE_META.custom;
+              return (
+                <div key={p.id} className="list-item" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }}>{meta.emoji}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {p.name}
+                    </div>
+                    <span className={`badge ${meta.badge}`} style={{ marginTop: 4 }}>{meta.label}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                    <button className="btn btn-ghost btn-sm" style={{ padding: "7px 10px" }} onClick={() => openEdit(p)}>
+                      ✏️
+                    </button>
+                    <button
+                      className="btn btn-sm"
+                      style={{ padding: "7px 10px", background: "var(--r100)", color: "var(--r500)", border: "none" }}
+                      onClick={() => setDeleteTarget(p.id)}
+                    >
+                      <Icon name="trash" size={14} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── Type count summary ── */}
+        {state.products.length > 0 && (
+          <div className="grid-3 mt-4">
+            {Object.entries(TYPE_META).map(([k, meta]) => {
+              const count = state.products.filter(p => p.type === k).length;
+              return (
+                <div key={k} style={{ background: "var(--g50)", borderRadius: 10, padding: 10, textAlign: "center" }}>
+                  <div style={{ fontSize: 18 }}>{meta.emoji}</div>
+                  <div style={{ fontWeight: 800, fontSize: 20, color: "var(--g700)" }}>{count}</div>
+                  <div style={{ fontSize: 11, color: "var(--tx3)", fontWeight: 600 }}>{meta.label}</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Add / Edit Modal ── */}
+      <Modal open={showForm} onClose={closeForm} title={editing ? "✏️ Edit Product" : "🧁 Add Product"}>
+        <div className="field mb-2">
+          <label className="label">Product Name *</label>
+          <input
+            className="input" autoFocus
+            value={form.name}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            placeholder="e.g. Buko Pie Special"
+            onKeyDown={e => e.key === "Enter" && handleSave()}
+          />
+        </div>
+        <div className="field mb-4">
+          <label className="label">Type</label>
+          <select className="input select" value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
+            <option value="manufactured">🏭 Manufactured (has recipe)</option>
+            <option value="resale">🛒 Resale (fixed cost)</option>
+            <option value="custom">✏️ Custom (manual costing)</option>
+          </select>
+        </div>
+        <div className="row gap-2">
+          <button className="btn btn-ghost btn-full" onClick={closeForm}>Cancel</button>
+          <button className="btn btn-primary btn-full" onClick={handleSave}>
+            {editing ? "Save Changes" : "Add Product"}
+          </button>
+        </div>
+      </Modal>
+
+      {/* ── Delete confirm ── */}
+      <ConfirmModal
+        open={!!deleteTarget}
+        msg={`Remove "${state.products.find(p => p.id === deleteTarget)?.name}"? This won't affect existing sales records.`}
+        onConfirm={() => handleDelete(deleteTarget)}
+        onCancel={() => setDeleteTarget(null)}
+      />
+    </div>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   pages/DashboardPage.js
+   ───────────────────────────────────────────────────────────── */
+// ═══════════════════════════════════════════════════════════════
+// pages/DashboardPage.js
+// ═══════════════════════════════════════════════════════════════
+
+function DashboardPage({ navigate, user, pendingCount }) {
+  const { state } = React.useContext(AppCtx);
+  const [period, setPeriod] = React.useState("today");
+
+  const now       = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const thisYear  = `${now.getFullYear()}`;
+
+  // ── Filter helpers ──────────────────────────────────────────
+  const byPeriod = (date) => {
+    if (period === "today") return date === todayS();
+    if (period === "month") return date.startsWith(thisMonth);
+    if (period === "year")  return date.startsWith(thisYear);
+    return true; // "all"
+  };
+
+  const sales    = state.sales.filter(s => byPeriod(s.date));
+  const expenses = state.expenses.filter(e => byPeriod(e.date));
+
+  // ── KPIs ─────────────────────────────────────────────────────
+  const revenue    = sales.reduce((s, x) => s + (x.revenue || 0), 0);
+  const expTotal   = expenses.reduce((s, e) => s + (+e.amount || 0), 0);
+  const netIncome  = revenue - expTotal;
+  const unitsSold  = sales.reduce((s, x) => s + x.lines.reduce((a, l) => a + l.qty, 0), 0);
+  const cashSales  = sales.reduce((s, x) => s + (+x.cash_amount  || 0), 0);
+  const gcashSales = sales.reduce((s, x) => s + (+x.gcash_amount || 0), 0);
+
+  // ── Product breakdown ─────────────────────────────────────
+  const productMap = {};
+  sales.forEach(s => s.lines.forEach(l => {
+    if (!productMap[l.product]) productMap[l.product] = { qty: 0, revenue: 0 };
+    productMap[l.product].qty     += l.qty;
+    productMap[l.product].revenue += l.revenue || 0;
+  }));
+  const topProducts = Object.entries(productMap).sort((a, b) => b[1].revenue - a[1].revenue).slice(0, 5);
+
+  // ── Expense category breakdown ────────────────────────────
+  const catMap = {};
+  expenses.forEach(e => { catMap[e.category] = (catMap[e.category] || 0) + (+e.amount || 0); });
+  const topCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 4);
+
+  return (
+    <div className="page">
+      <PageHeader
+        title="📊 Dashboard"
+        sub={`Hello, ${user.name}!`}
+        navigate={navigate}
+        user={user}
+        pendingCount={pendingCount}
+        showLogout
+      />
+      <div className="page-body">
+
+        {/* ── Period selector ── */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+          {[["today", "Today"], ["month", "This Month"], ["year", "This Year"], ["all", "All Time"]].map(([v, l]) => (
+            <button
+              key={v}
+              className={`chip ${period === v ? "active" : ""}`}
+              style={{ flex: 1, justifyContent: "center", fontSize: 12, padding: "6px 8px" }}
+              onClick={() => setPeriod(v)}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+
+        {/* ── KPI cards ── */}
+        <div className="grid-2 mb-3">
+          <div className="stat-card">
+            <div className="stat-lbl">Revenue</div>
+            <div className="stat-val" style={{ fontSize: 22 }}>{peso(revenue)}</div>
+          </div>
+          <div className="stat-card" style={{ background: "var(--r500)" }}>
+            <div className="stat-lbl">Expenses</div>
+            <div className="stat-val" style={{ fontSize: 22 }}>{peso(expTotal)}</div>
+          </div>
+        </div>
+        <div className="grid-2 mb-3">
+          <div className="stat-card yellow">
+            <div className="stat-lbl" style={{ color: "rgba(0,0,0,.6)" }}>Net Income</div>
+            <div className="stat-val" style={{ fontSize: 22, color: netIncome >= 0 ? "var(--g900)" : "var(--r500)" }}>
+              {peso(netIncome)}
+            </div>
+          </div>
+          <div className="stat-card light">
+            <div className="stat-lbl">Units Sold</div>
+            <div className="stat-val">{unitsSold}</div>
+          </div>
+        </div>
+
+        {/* ── Payment split ── */}
+        <div className="card mb-3">
+          <div className="card-body">
+            <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>💳 Payment Split</div>
+            <div className="row gap-2">
+              <div style={{ flex: 1, background: "var(--g50)", borderRadius: 10, padding: 12, textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "var(--tx3)", fontWeight: 600 }}>Cash</div>
+                <div style={{ fontWeight: 800, fontSize: 16, color: "var(--g700)" }}>{peso(cashSales)}</div>
+                <div style={{ fontSize: 11, color: "var(--tx3)" }}>{revenue > 0 ? `${Math.round(cashSales / revenue * 100)}%` : "—"}</div>
+              </div>
+              <div style={{ flex: 1, background: "var(--y100)", borderRadius: 10, padding: 12, textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "#b45309", fontWeight: 600 }}>GCash</div>
+                <div style={{ fontWeight: 800, fontSize: 16, color: "#b45309" }}>{peso(gcashSales)}</div>
+                <div style={{ fontSize: 11, color: "#b45309" }}>{revenue > 0 ? `${Math.round(gcashSales / revenue * 100)}%` : "—"}</div>
+              </div>
+            </div>
+            {revenue > 0 && (
+              <div style={{ marginTop: 10 }}>
+                <div className="prog-bar" style={{ height: 10 }}>
+                  <div className="prog-fill" style={{ width: `${pct(cashSales, revenue)}%`, background: "var(--g500)" }} />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Top Products ── */}
+        {topProducts.length > 0 && (
+          <div className="card mb-3">
+            <div className="card-body">
+              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>🧁 Top Products</div>
+              {topProducts.map(([name, d]) => (
+                <div key={name} style={{ marginBottom: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "var(--tx1)" }}>{name}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--g700)" }}>{peso(d.revenue)}</span>
+                  </div>
+                  <div className="prog-bar">
+                    <div className="prog-fill" style={{ width: `${pct(d.revenue, revenue)}%` }} />
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--tx3)", marginTop: 3 }}>{d.qty} units sold</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Expense breakdown ── */}
+        {topCats.length > 0 && (
+          <div className="card mb-3">
+            <div className="card-body">
+              <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>📋 Expense Breakdown</div>
+              {topCats.map(([cat, amt]) => (
+                <div key={cat} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <span style={{ fontSize: 13, color: "var(--tx2)" }}>{cat}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--r500)" }}>{peso(amt)}</span>
+                    <span style={{ fontSize: 11, color: "var(--tx3)" }}>{expTotal > 0 ? `${Math.round(amt / expTotal * 100)}%` : "—"}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Cost Recovery progress ── */}
+        <div className="card mb-3">
+          <div className="card-body">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>🔄 Cost Recovery</div>
+              <span className="badge badge-green">{state.recovery.percentage}% per sale</span>
+            </div>
+            {[["boxes", "📦"], ["vehicle", "🚐"]].map(([key, emoji]) => {
+              const item = state.recovery[key];
+              const p    = pct(item.recovered, item.total);
+              return (
+                <div key={key} style={{ marginBottom: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600 }}>{emoji} {item.label}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--g700)" }}>{p}%</span>
+                  </div>
+                  <div className="prog-bar" style={{ height: 10 }}>
+                    <div className="prog-fill yellow" style={{ width: `${p}%` }} />
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+                    <span style={{ fontSize: 11, color: "var(--tx3)" }}>{peso(item.recovered)} recovered</span>
+                    <span style={{ fontSize: 11, color: "var(--tx3)" }}>{peso(item.total - item.recovered)} remaining</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Recent transactions ── */}
+        <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>🕐 Recent Transactions</div>
+        <div className="card">
+          {sales.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">📊</div>
+              <div className="empty-title">No data for this period</div>
+            </div>
+          ) : (
+            [...sales].reverse().slice(0, 8).map(s => (
+              <div key={s.id} className="list-item">
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>
+                      {s.lines.map(l => `${l.qty}×${l.product}`).join(", ").slice(0, 40)}
+                      {s.lines.length > 1 ? "..." : ""}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--tx3)", marginTop: 2 }}>{shortD(s.date)} · {s.created_by}</div>
+                  </div>
+                  <div style={{ fontWeight: 800, color: "var(--g700)", fontSize: 14 }}>{peso(s.revenue)}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   pages/SettingsPage.js  +  app.js  (AppRouter, App, render)
+   ───────────────────────────────────────────────────────────── */
+
+
+// ═══════════════════════════════════════════════════════════════
+// pages/SettingsPage.js
+// ═══════════════════════════════════════════════════════════════
+function SettingsPage({ navigate, user, pendingCount }) {
+  const { state, dispatch } = React.useContext(AppCtx);
+  const toast = React.useContext(ToastCtx);
+  const rec = state.recovery;
+  const [pct_v,    setPct]    = React.useState(rec.percentage);
+  const [boxTotal, setBoxTotal] = React.useState(rec.boxes.total);
+  const [vehTotal, setVehTotal] = React.useState(rec.vehicle.total);
+  const [confirm,  setConfirm]  = React.useState(false);
+  const [syncing,  setSyncing]  = React.useState(false);
+  const [setting,  setSetting]  = React.useState(false);
+
+  const saveRecovery = () => {
+    dispatch({ type: "SET_RECOVERY", payload: {
+      percentage: +pct_v,
+      boxes:   { ...rec.boxes,   total: +boxTotal },
+      vehicle: { ...rec.vehicle, total: +vehTotal },
+    }});
+    toast("Recovery settings saved! ✅");
+  };
+
+  const handleSetupSheets = async () => {
+    if (!GAS_URL) { toast("Set GAS_URL first.", "err"); return; }
+    setSetting(true);
+    const ok = await sheetsAPI.setup();
+    setSetting(false);
+    toast(ok ? "Sheets initialized! ✅ All tabs created." : "Setup failed. Check your GAS_URL.", ok ? "ok" : "err");
+  };
+
+  const handleForceSync = async () => {
+    if (!GAS_URL) { toast("Set GAS_URL first.", "err"); return; }
+    if (state.pendingSync.length === 0) { toast("Nothing pending — all synced! ✅"); return; }
+    setSyncing(true);
+    sheetsAPI.syncQueue(state.pendingSync, rem => {
+      dispatch({ type: "SET_PENDING", payload: rem });
+      setSyncing(false);
+      const synced = state.pendingSync.length - rem.length;
+      toast(rem.length === 0
+        ? `All ${synced} record${synced !== 1 ? "s" : ""} synced! ✅`
+        : `Synced ${synced}, ${rem.length} still pending.`,
+        rem.length === 0 ? "ok" : "err");
+    });
+  };
+
+  const resetAll = () => {
+    ["bb_sales","bb_expenses","bb_production","bb_pending","bb_recovery","bb_products"]
+      .forEach(k => localStorage.removeItem(k));
+    window.location.reload();
+  };
+
+  return (
+    <div className="page">
+      <PageHeader title="⚙️ Settings" sub="Configuration & sync" navigate={navigate} user={user} pendingCount={pendingCount} showLogout/>
+      <div className="page-body">
+
+        {/* ── Sync Status ── */}
+        <div className="card mb-3">
+          <div className="card-body">
+            <div style={{fontWeight:700,fontSize:15,marginBottom:10}}>🔗 Google Sheets Sync</div>
+            <div style={{background:GAS_URL?"var(--g50)":"var(--r100)",borderRadius:10,padding:12,display:"flex",gap:10,alignItems:"center",marginBottom:12}}>
+              <span style={{fontSize:22}}>{GAS_URL?"✅":"❌"}</span>
+              <div>
+                <div style={{fontWeight:700,fontSize:13}}>{GAS_URL?"Sync Enabled":"Not Configured"}</div>
+                <div style={{fontSize:12,color:"var(--tx3)",marginTop:2}}>
+                  {GAS_URL ? "Every save writes to your Google Sheet." : "Add your GAS_URL near the top of this file to enable sync."}
+                </div>
+              </div>
+            </div>
+
+            {state.pendingSync.length > 0 ? (
+              <div style={{background:"var(--y100)",borderRadius:10,padding:12,display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+                <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                  <Icon name="sync" size={16}/>
+                  <div>
+                    <div style={{fontWeight:700,fontSize:13}}>{state.pendingSync.length} record{state.pendingSync.length!==1?"s":""} pending sync</div>
+                    <div style={{fontSize:11,color:"var(--tx3)",marginTop:1}}>Saved locally, waiting to upload.</div>
+                  </div>
+                </div>
+                <button className="btn btn-accent btn-sm" onClick={handleForceSync} disabled={syncing||!GAS_URL}>
+                  {syncing ? <Spinner/> : "Sync Now"}
+                </button>
+              </div>
+            ) : GAS_URL ? (
+              <div style={{background:"var(--g50)",borderRadius:10,padding:10,display:"flex",gap:8,alignItems:"center",marginBottom:10}}>
+                <Icon name="check" size={16}/><span style={{fontSize:13,fontWeight:600,color:"var(--g700)"}}>All records synced</span>
+              </div>
+            ) : null}
+
+            {GAS_URL && (
+              <button className="btn btn-primary btn-full" onClick={handleSetupSheets} disabled={setting}>
+                {setting ? <><Spinner/> Initializing...</> : "🗂️ Initialize / Rebuild All Sheets"}
+              </button>
+            )}
+            <div style={{fontSize:12,color:"var(--tx3)",marginTop:6,textAlign:"center"}}>
+              Run this once after first deployment, or to rebuild missing tabs.
+            </div>
+          </div>
+        </div>
+
+        {/* ── Recovery Settings ── */}
+        <div className="card mb-3">
+          <div className="card-body">
+            <div style={{fontWeight:700,fontSize:15,marginBottom:12}}>🔄 Cost Recovery</div>
+            <div className="field mb-2">
+              <label className="label">Recovery % per sale</label>
+              <input className="input" type="number" min="0" max="100" step="0.1" value={pct_v} onChange={e=>setPct(e.target.value)}/>
+              <div style={{fontSize:12,color:"var(--tx3)",marginTop:4}}>Applied to every transaction's revenue.</div>
+            </div>
+            <div className="divider"/>
+            <div style={{fontWeight:600,fontSize:13,marginBottom:8,color:"var(--tx2)"}}>Capital Costs to Recover</div>
+            <div className="field mb-2">
+              <label className="label">📦 Boxes & Display Equipment (₱)</label>
+              <input className="input" type="number" min="0" value={boxTotal} onChange={e=>setBoxTotal(e.target.value)}/>
+              <div style={{fontSize:12,color:"var(--tx3)",marginTop:4}}>Recovered: {peso(rec.boxes.recovered)} / {peso(+boxTotal)}</div>
+            </div>
+            <div className="field mb-3">
+              <label className="label">🚐 Delivery Vehicle (₱)</label>
+              <input className="input" type="number" min="0" value={vehTotal} onChange={e=>setVehTotal(e.target.value)}/>
+              <div style={{fontSize:12,color:"var(--tx3)",marginTop:4}}>Recovered: {peso(rec.vehicle.recovered)} / {peso(+vehTotal)}</div>
+            </div>
+            <button className="btn btn-primary btn-full" onClick={saveRecovery}>Save Recovery Settings</button>
+          </div>
+        </div>
+
+        {/* ── Setup Guide ── */}
+        <div className="card mb-3">
+          <div className="card-body">
+            <div style={{fontWeight:700,fontSize:15,marginBottom:12}}>📖 Google Sheets Setup Guide</div>
+            {[
+              ["1","Create a blank Google Sheet","Any name works. You don't need to create tabs — the script does it."],
+              ["2","Open Apps Script","Extensions → Apps Script. Delete existing code and paste the GAS script below."],
+              ["3","Run manualSetup()","Select manualSetup in the toolbar and click ▶ Run. Approve permissions."],
+              ["4","Deploy as Web App","Deploy → New deployment → Web app. Execute as: Me, Access: Anyone. Copy the URL."],
+              ["5","Paste GAS_URL","Open this HTML file in a text editor. Find const GAS_URL near the top. Paste the URL."],
+              ["6","Initialize Sheets","Re-open the app and tap Initialize / Rebuild All Sheets in Settings."],
+            ].map(([n, title, desc]) => (
+              <div key={n} style={{display:"flex",gap:12,marginBottom:14}}>
+                <div style={{width:26,height:26,borderRadius:"50%",background:"var(--g700)",color:"#fff",fontWeight:800,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>{n}</div>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13,color:"var(--tx1)"}}>{title}</div>
+                  <div style={{fontSize:12,color:"var(--tx2)",marginTop:3,lineHeight:1.6}}>{desc}</div>
+                </div>
+              </div>
+            ))}
+
+            {/* GAS script snippet */}
+            <div style={{marginTop:4,background:"#1e1e2e",borderRadius:10,padding:12,overflowX:"auto"}}>
+              <pre style={{fontSize:10,color:"#cdd6f4",lineHeight:1.6,whiteSpace:"pre-wrap"}}>{`function doPost(e) {
+  try {
+    const d = JSON.parse(e.postData.contents);
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (d.action === 'setup') {
+      ['Sales','Expenses','Production'].forEach(name => {
+        if (!ss.getSheetByName(name)) ss.insertSheet(name);
+      });
+    } else {
+      const sheet = ss.getSheetByName(d.action.replace('append',''))
+        || ss.insertSheet(d.action.replace('append',''));
+      sheet.appendRow(Object.values(d.payload));
+    }
+    return ContentService
+      .createTextOutput(JSON.stringify({ok:true}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({err:err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+function manualSetup() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  ['Sales','Expenses','Production'].forEach(name => {
+    if (!ss.getSheetByName(name)) ss.insertSheet(name);
+  });
+}`}</pre>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Local data stats ── */}
+        <div className="card mb-3">
+          <div className="card-body">
+            <div style={{fontWeight:700,fontSize:14,marginBottom:10}}>📊 Local Data</div>
+            <div className="grid-3" style={{gap:8}}>
+              {[["🧾","Sales",state.sales.length],["💸","Expenses",state.expenses.length],["🏭","Production",state.production.length]].map(([emoji,label,count])=>(
+                <div key={label} style={{background:"var(--g50)",borderRadius:10,padding:10,textAlign:"center"}}>
+                  <div style={{fontSize:18}}>{emoji}</div>
+                  <div style={{fontWeight:800,fontSize:20,color:"var(--g700)"}}>{count}</div>
+                  <div style={{fontSize:11,color:"var(--tx3)",fontWeight:600}}>{label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Danger Zone ── */}
+        <div className="card" style={{border:"1.5px solid var(--r100)"}}>
+          <div className="card-body">
+            <div style={{fontWeight:700,fontSize:15,marginBottom:6,color:"var(--r500)"}}>⚠️ Danger Zone</div>
+            <div style={{fontSize:13,color:"var(--tx2)",marginBottom:12}}>Permanently deletes all local data. Google Sheets is unaffected.</div>
+            <button className="btn btn-danger btn-full" onClick={()=>setConfirm(true)}>Reset All Local Data</button>
+          </div>
+        </div>
+
+      </div>
+      <ConfirmModal open={confirm} msg="Delete ALL local data? This cannot be undone. Google Sheets won't be affected." onConfirm={resetAll} onCancel={()=>setConfirm(false)}/>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// app.js — AppRouter + App root + render
+// ═══════════════════════════════════════════════════════════════
+function AppRouter() {
+  const { user } = React.useContext(AuthCtx);
+  const [route, navigate] = useHash();
+
+  React.useEffect(() => {
+    if (!user) {
+      if (route !== "/login") navigate("/login");
+      return;
+    }
+    const allowed = user.role === "cashier" ? CASHIER_ROUTES : ADMIN_ROUTES;
+    if (route === "/" || route === "/login" || !allowed.includes(route)) {
+      navigate(user.role === "cashier" ? "/sales" : "/dashboard");
+    }
+  }, [user, route]);
+
+  const renderContent = () => {
+    if (!user || route === "/login" || route === "/") {
+      return <LoginPage navigate={navigate}/>;
+    }
+    const allowed = user.role === "cashier" ? CASHIER_ROUTES : ADMIN_ROUTES;
+    if (!allowed.includes(route)) return <LoginPage navigate={navigate}/>;
+
+    const pageMap = {
+      "/sales":      <SalesPage/>,
+      "/cash-count": <CashCountPage/>,
+      "/expenses":   <ExpensesPage/>,
+      "/production": <ProductionPage/>,
+      "/products":   <ProductsPage/>,
+      "/dashboard":  <DashboardPage/>,
+      "/settings":   <SettingsPage/>,
+    };
+    return (
+      <AppProvider>
+        <Layout route={route} navigate={navigate}>
+          {pageMap[route] || <DashboardPage/>}
+        </Layout>
+      </AppProvider>
+    );
+  };
+
+  return <ToastProvider>{renderContent()}</ToastProvider>;
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRouter/>
+    </AuthProvider>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+
+</script>
 </body>
 </html>
