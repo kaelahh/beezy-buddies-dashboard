@@ -12,6 +12,7 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
   <!-- ═══════════════════════════════════════════════════════════
        FONTS  (Google Fonts)
@@ -454,7 +455,7 @@ input:focus, select:focus, textarea:focus {
 <!-- ═══════════════════════════════════════════════════════════════
      JAVASCRIPT  (Babel/JSX — load order matters)
      ─────────────────────────────────────────────────────────────
-     1. config.js       — GAS_URL, USERS, routes, constants
+     1. config.js       — _URL, USERS, routes, constants
      2. utils.js        — formatters, LS helper, Sheets API
      3. state.js        — AuthCtx, AppCtx, ToastCtx + reducers
      4. router.js       — useHash() hook
@@ -475,7 +476,14 @@ const { useState, useEffect, useContext, useReducer, createContext, useCallback,
 // ─── Google Apps Script URL ──────────────────────────────────
 // Set this to your deployed GAS Web App URL to enable Sheets sync.
 // Leave empty ("") to run in local-only mode.
-const GAS_URL = ""; // e.g. "https://script.google.com/macros/s/YOUR_ID/exec"
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyjFKsGc0CmJ9_FXGqTGU6tSNn3lcsMECBfs1jm2q745q2JFC0fTBYPwPw2ZlSFNlFd/exec"; 
+const SUPABASE_URL = "https://dhvyajithzzupmfrysuj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRodnlhaml0aHp6dXBtZnJ5c3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNDM5NDgsImV4cCI6MjA5NDkxOTk0OH0.HOnk-xBQ59kA-NOw-kYrxyyx6jTGQBi6aAK_wuuOI-8";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
 // ─── Hardcoded Users (MVP) ────────────────────────────────────
 const USERS = [
@@ -702,6 +710,24 @@ function appReducer(state, action) {
       return { ...state, pendingSync: action.payload };
     }
 
+    case "LOAD_SALES":
+  return {
+    ...s,
+    sales: a.payload
+  };
+
+case "LOAD_EXPENSES":
+  return {
+    ...s,
+    expenses: a.payload
+  };
+
+case "LOAD_PRODUCTION":
+  return {
+    ...s,
+    production: a.payload
+  };
+
     default:
       return state;
   }
@@ -712,6 +738,85 @@ const AppCtx = createContext(null);
 
 function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, INIT);
+
+  useEffect(() => {
+
+  async function loadData() {
+
+    // SALES
+    const { data: salesData } =
+      await supabase
+        .from("sales")
+        .select("*");
+
+    dispatch({
+      type: "LOAD_SALES",
+      payload: salesData || []
+    });
+
+    // EXPENSES
+    const { data: expensesData } =
+      await supabase
+        .from("expenses")
+        .select("*");
+
+    dispatch({
+      type: "LOAD_EXPENSES",
+      payload: expensesData || []
+    });
+
+    // PRODUCTION
+    const { data: productionData } =
+      await supabase
+        .from("production")
+        .select("*");
+
+    dispatch({
+      type: "LOAD_PRODUCTION",
+      payload: productionData || []
+    });
+
+  }
+
+  loadData();
+
+}, []);
+
+useEffect(() => {
+
+  const salesChannel = supabase
+    .channel('sales-live')
+
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'sales'
+      },
+
+      async () => {
+
+        const { data } =
+          await supabase
+            .from('sales')
+            .select('*');
+
+        dispatch({
+          type: 'LOAD_SALES',
+          payload: data || []
+        });
+
+      }
+    )
+
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(salesChannel);
+  };
+
+}, []);
 
   // Auto-sync queued records when network comes back
   useEffect(() => {
@@ -734,6 +839,11 @@ function AppProvider({ children }) {
   };
 
   const addSale = async (sale, products) => {
+
+    await supabase
+  .from("sales")
+  .insert([sale]);
+
     dispatch({ type: "ADD_SALE", payload: sale });
     const enriched = {
       ...sale,
@@ -746,11 +856,21 @@ function AppProvider({ children }) {
   };
 
   const addExpense = async (exp) => {
+
+  await supabase
+  .from("expenses")
+  .insert([exp]);
+
     dispatch({ type: "ADD_EXPENSE", payload: exp });
     await queue("appendExpense", exp);
   };
 
   const addProduction = async (prod) => {
+
+    await supabase
+  .from("production")
+  .insert([prod]);
+
     dispatch({ type: "ADD_PRODUCTION", payload: prod });
     await queue("appendProduction", prod);
   };
