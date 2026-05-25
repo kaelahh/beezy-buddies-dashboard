@@ -12,8 +12,6 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  
 
   <!-- ═══════════════════════════════════════════════════════════
        FONTS  (Google Fonts)
@@ -477,14 +475,7 @@ const { useState, useEffect, useContext, useReducer, createContext, useCallback,
 // ─── Google Apps Script URL ──────────────────────────────────
 // Set this to your deployed GAS Web App URL to enable Sheets sync.
 // Leave empty ("") to run in local-only mode.
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyjFKsGc0CmJ9_FXGqTGU6tSNn3lcsMECBfs1jm2q745q2JFC0fTBYPwPw2ZlSFNlFd/exec"; 
-const SUPABASE_URL = "https://dhvyajithzzupmfrysuj.supabase.co/rest/v1/";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRodnlhaml0aHp6dXBtZnJ5c3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNDM5NDgsImV4cCI6MjA5NDkxOTk0OH0.HOnk-xBQ59kA-NOw-kYrxyyx6jTGQBi6aAK_wuuOI-8";
-
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+const GAS_URL = ""; // e.g. "https://script.google.com/macros/s/YOUR_ID/exec"
 
 // ─── Hardcoded Users (MVP) ────────────────────────────────────
 const USERS = [
