@@ -12,7 +12,7 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
   <!-- ═══════════════════════════════════════════════════════════
        FONTS  (Google Fonts)
@@ -480,10 +480,33 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbyjFKsGc0CmJ9_FXGqTGU6t
 const SUPABASE_URL = "https://dhvyajithzzupmfrysuj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRodnlhaml0aHp6dXBtZnJ5c3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNDM5NDgsImV4cCI6MjA5NDkxOTk0OH0.HOnk-xBQ59kA-NOw-kYrxyyx6jTGQBi6aAK_wuuOI-8";
 
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+// FIX 1: Safely initialize Supabase client.
+// window.supabase is populated by the @supabase/supabase-js CDN <script>.
+// If the CDN failed to load (network issue, ad-blocker, etc.) we fall back
+// to a no-op stub so the rest of the app keeps running in offline/LS mode.
+let sb;
+try {
+  if (window.supabase && window.supabase.createClient) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    throw new Error("Supabase CDN not loaded");
+  }
+} catch (sbInitErr) {
+  console.warn("[Supabase] Init failed, running in local-only mode:", sbInitErr.message);
+  // Stub: all methods return safe no-op promises so the app never crashes
+  sb = {
+    from: () => ({
+      select: () => Promise.resolve({ data: [], error: null }),
+      insert: () => Promise.resolve({ data: null, error: null }),
+    }),
+    channel: () => ({
+      on: function() { return this; },
+      subscribe: function() { return this; },
+      unsubscribe: () => Promise.resolve(),
+    }),
+    removeChannel: () => Promise.resolve(),
+  };
+}
 
 // ─── Hardcoded Users (MVP) ────────────────────────────────────
 const USERS = [
@@ -710,23 +733,17 @@ function appReducer(state, action) {
       return { ...state, pendingSync: action.payload };
     }
 
+    // FIX 2: Was using wrong variable names `s` and `a` instead of `state`
+    // and `action`, causing a ReferenceError that crashed the entire app
+    // (blank white screen). These are the Supabase realtime reload actions.
     case "LOAD_SALES":
-  return {
-    ...s,
-    sales: a.payload
-  };
+      return { ...state, sales: action.payload };
 
-case "LOAD_EXPENSES":
-  return {
-    ...s,
-    expenses: a.payload
-  };
+    case "LOAD_EXPENSES":
+      return { ...state, expenses: action.payload };
 
-case "LOAD_PRODUCTION":
-  return {
-    ...s,
-    production: a.payload
-  };
+    case "LOAD_PRODUCTION":
+      return { ...state, production: action.payload };
 
     default:
       return state;
@@ -740,83 +757,113 @@ function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, INIT);
 
   useEffect(() => {
-
-  async function loadData() {
-
-    // SALES
-    const { data: salesData } =
-      await supabase
-        .from("sales")
-        .select("*");
-
-    dispatch({
-      type: "LOAD_SALES",
-      payload: salesData || []
-    });
-
-    // EXPENSES
-    const { data: expensesData } =
-      await supabase
-        .from("expenses")
-        .select("*");
-
-    dispatch({
-      type: "LOAD_EXPENSES",
-      payload: expensesData || []
-    });
-
-    // PRODUCTION
-    const { data: productionData } =
-      await supabase
-        .from("production")
-        .select("*");
-
-    dispatch({
-      type: "LOAD_PRODUCTION",
-      payload: productionData || []
-    });
-
-  }
-
-  loadData();
-
-}, []);
-
-useEffect(() => {
-
-  const salesChannel = supabase
-    .channel('sales-live')
-
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'sales'
-      },
-
-      async () => {
-
-        const { data } =
-          await supabase
-            .from('sales')
-            .select('*');
-
-        dispatch({
-          type: 'LOAD_SALES',
-          payload: data || []
-        });
-
+    // FIX 3: All Supabase fetches wrapped in try/catch with per-table
+    // error isolation. A failure on one table won't break the others,
+    // and won't crash the React render tree (which caused blank screen).
+    async function loadData() {
+      // SALES
+      try {
+        const { data: salesData, error: salesErr } = await sb
+          .from("sales")
+          .select("*");
+        if (salesErr) throw salesErr;
+        dispatch({ type: "LOAD_SALES", payload: salesData || [] });
+      } catch (err) {
+        console.warn("[Supabase] Failed to load sales, keeping localStorage data:", err.message);
       }
-    )
 
-    .subscribe();
+      // EXPENSES
+      try {
+        const { data: expensesData, error: expErr } = await sb
+          .from("expenses")
+          .select("*");
+        if (expErr) throw expErr;
+        dispatch({ type: "LOAD_EXPENSES", payload: expensesData || [] });
+      } catch (err) {
+        console.warn("[Supabase] Failed to load expenses, keeping localStorage data:", err.message);
+      }
 
-  return () => {
-    supabase.removeChannel(salesChannel);
-  };
+      // PRODUCTION
+      try {
+        const { data: productionData, error: prodErr } = await sb
+          .from("production")
+          .select("*");
+        if (prodErr) throw prodErr;
+        dispatch({ type: "LOAD_PRODUCTION", payload: productionData || [] });
+      } catch (err) {
+        console.warn("[Supabase] Failed to load production, keeping localStorage data:", err.message);
+      }
+    }
 
-}, []);
+    loadData();
+  }, []);
+
+  // FIX 4: Supabase v2 realtime subscriptions.
+  // - sb.removeChannel() does NOT exist in v2; use channel.unsubscribe()
+  // - Wrap the entire subscription setup in try/catch so any realtime error
+  //   can't break the component tree
+  // - Subscribe to all 3 tables (sales, expenses, production) for full sync
+  useEffect(() => {
+    let salesChannel, expensesChannel, productionChannel;
+
+    try {
+      salesChannel = sb
+        .channel("sales-live")
+        .on("postgres_changes", { event: "*", schema: "public", table: "sales" },
+          async () => {
+            try {
+              const { data } = await sb.from("sales").select("*");
+              dispatch({ type: "LOAD_SALES", payload: data || [] });
+            } catch (err) {
+              console.warn("[Supabase] Realtime sales reload failed:", err.message);
+            }
+          })
+        .subscribe();
+    } catch (err) {
+      console.warn("[Supabase] Could not subscribe to sales channel:", err.message);
+    }
+
+    try {
+      expensesChannel = sb
+        .channel("expenses-live")
+        .on("postgres_changes", { event: "*", schema: "public", table: "expenses" },
+          async () => {
+            try {
+              const { data } = await sb.from("expenses").select("*");
+              dispatch({ type: "LOAD_EXPENSES", payload: data || [] });
+            } catch (err) {
+              console.warn("[Supabase] Realtime expenses reload failed:", err.message);
+            }
+          })
+        .subscribe();
+    } catch (err) {
+      console.warn("[Supabase] Could not subscribe to expenses channel:", err.message);
+    }
+
+    try {
+      productionChannel = sb
+        .channel("production-live")
+        .on("postgres_changes", { event: "*", schema: "public", table: "production" },
+          async () => {
+            try {
+              const { data } = await sb.from("production").select("*");
+              dispatch({ type: "LOAD_PRODUCTION", payload: data || [] });
+            } catch (err) {
+              console.warn("[Supabase] Realtime production reload failed:", err.message);
+            }
+          })
+        .subscribe();
+    } catch (err) {
+      console.warn("[Supabase] Could not subscribe to production channel:", err.message);
+    }
+
+    // FIX 4b: Proper v2 cleanup — use channel.unsubscribe(), NOT sb.removeChannel()
+    return () => {
+      try { if (salesChannel)      salesChannel.unsubscribe();      } catch (e) {}
+      try { if (expensesChannel)   expensesChannel.unsubscribe();   } catch (e) {}
+      try { if (productionChannel) productionChannel.unsubscribe(); } catch (e) {}
+    };
+  }, []);
 
   // Auto-sync queued records when network comes back
   useEffect(() => {
@@ -839,11 +886,14 @@ useEffect(() => {
   };
 
   const addSale = async (sale, products) => {
-
-    await supabase
-  .from("sales")
-  .insert([sale]);
-
+    // FIX 5: Supabase insert wrapped in try/catch — a DB or network error
+    // should never prevent the local dispatch or Sheets queue from running.
+    try {
+      const { error } = await sb.from("sales").insert([sale]);
+      if (error) console.warn("[Supabase] Insert sale failed:", error.message);
+    } catch (err) {
+      console.warn("[Supabase] Insert sale exception:", err.message);
+    }
     dispatch({ type: "ADD_SALE", payload: sale });
     const enriched = {
       ...sale,
@@ -856,21 +906,23 @@ useEffect(() => {
   };
 
   const addExpense = async (exp) => {
-
-  await supabase
-  .from("expenses")
-  .insert([exp]);
-
+    try {
+      const { error } = await sb.from("expenses").insert([exp]);
+      if (error) console.warn("[Supabase] Insert expense failed:", error.message);
+    } catch (err) {
+      console.warn("[Supabase] Insert expense exception:", err.message);
+    }
     dispatch({ type: "ADD_EXPENSE", payload: exp });
     await queue("appendExpense", exp);
   };
 
   const addProduction = async (prod) => {
-
-    await supabase
-  .from("production")
-  .insert([prod]);
-
+    try {
+      const { error } = await sb.from("production").insert([prod]);
+      if (error) console.warn("[Supabase] Insert production failed:", error.message);
+    } catch (err) {
+      console.warn("[Supabase] Insert production exception:", err.message);
+    }
     dispatch({ type: "ADD_PRODUCTION", payload: prod });
     await queue("appendProduction", prod);
   };
@@ -2634,6 +2686,13 @@ function manualSetup() {
 // ═══════════════════════════════════════════════════════════════
 // app.js — AppRouter + App root + render
 // ═══════════════════════════════════════════════════════════════
+
+// FIX 6: AppRouter is now a pure router — it no longer owns AppProvider.
+// Previously AppProvider was INSIDE renderContent(), which meant it
+// re-mounted on every route change, destroying all state, firing all
+// useEffects (including Supabase subscriptions) on every navigation,
+// and causing the blank screen after the first route transition.
+// AppProvider and ToastProvider now live in App, wrapping everything once.
 function AppRouter() {
   const { user } = React.useContext(AuthCtx);
   const [route, navigate] = useHash();
@@ -2666,21 +2725,26 @@ function AppRouter() {
       "/settings":   <SettingsPage/>,
     };
     return (
-      <AppProvider>
-        <Layout route={route} navigate={navigate}>
-          {pageMap[route] || <DashboardPage/>}
-        </Layout>
-      </AppProvider>
+      <Layout route={route} navigate={navigate}>
+        {pageMap[route] || <DashboardPage/>}
+      </Layout>
     );
   };
 
-  return <ToastProvider>{renderContent()}</ToastProvider>;
+  return renderContent();
 }
 
 function App() {
   return (
     <AuthProvider>
-      <AppRouter/>
+      {/* FIX 6: AppProvider and ToastProvider live here — above the router —
+          so they mount ONCE for the app lifetime. Realtime subscriptions and
+          state are preserved across all route changes. */}
+      <AppProvider>
+        <ToastProvider>
+          <AppRouter/>
+        </ToastProvider>
+      </AppProvider>
     </AuthProvider>
   );
 }
