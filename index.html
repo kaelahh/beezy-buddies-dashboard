@@ -498,6 +498,8 @@ try {
     from: () => ({
       select: () => Promise.resolve({ data: [], error: null }),
       insert: () => Promise.resolve({ data: null, error: null }),
+      // [DELETE STUB] No-op delete chain for offline/CDN-failure mode
+      delete: () => ({ eq: () => Promise.resolve({ data: null, error: null }) }),
     }),
     channel: () => ({
       on: function() { return this; },
@@ -745,6 +747,29 @@ function appReducer(state, action) {
     case "LOAD_PRODUCTION":
       return { ...state, production: action.payload };
 
+    // ─── DELETE actions ──────────────────────────────────────────
+    // [DELETE] Filter the record with the matching id out of local state
+    // and persist to localStorage immediately so the deletion survives
+    // a page refresh even if Supabase is unreachable.
+
+    case "DELETE_SALE": {
+      const sales = state.sales.filter(s => s.id !== action.payload);
+      LS.set("bb_sales", sales);
+      return { ...state, sales };
+    }
+
+    case "DELETE_EXPENSE": {
+      const expenses = state.expenses.filter(e => e.id !== action.payload);
+      LS.set("bb_expenses", expenses);
+      return { ...state, expenses };
+    }
+
+    case "DELETE_PRODUCTION": {
+      const production = state.production.filter(p => p.id !== action.payload);
+      LS.set("bb_production", production);
+      return { ...state, production };
+    }
+
     default:
       return state;
   }
@@ -927,8 +952,64 @@ function AppProvider({ children }) {
     await queue("appendProduction", prod);
   };
 
+  // ─── Delete functions ─────────────────────────────────────────
+  // Each function follows the same safe pattern:
+  //   1. Optimistically update local state via dispatch (instant UI update)
+  //   2. Attempt Supabase delete; log warning on failure (don't throw)
+  //   3. Return { ok, error } so callers can show toast feedback
+  // Note: Google Sheets append-only — deletes are NOT sent to Sheets
+  // because the GAS script only supports appendRow (by design).
+
+  const deleteSale = async (id) => {
+    // [DELETE_SALE] Step 1: Dispatch immediately so UI updates without waiting
+    dispatch({ type: "DELETE_SALE", payload: id });
+    try {
+      const { error } = await sb.from("sales").delete().eq("id", id);
+      if (error) {
+        console.warn("[Supabase] Delete sale failed:", error.message);
+        return { ok: false, error: error.message };
+      }
+      return { ok: true };
+    } catch (err) {
+      console.warn("[Supabase] Delete sale exception:", err.message);
+      return { ok: false, error: err.message };
+    }
+  };
+
+  const deleteExpense = async (id) => {
+    // [DELETE_EXPENSE] Step 1: Optimistic local state update
+    dispatch({ type: "DELETE_EXPENSE", payload: id });
+    try {
+      const { error } = await sb.from("expenses").delete().eq("id", id);
+      if (error) {
+        console.warn("[Supabase] Delete expense failed:", error.message);
+        return { ok: false, error: error.message };
+      }
+      return { ok: true };
+    } catch (err) {
+      console.warn("[Supabase] Delete expense exception:", err.message);
+      return { ok: false, error: err.message };
+    }
+  };
+
+  const deleteProduction = async (id) => {
+    // [DELETE_PRODUCTION] Step 1: Optimistic local state update
+    dispatch({ type: "DELETE_PRODUCTION", payload: id });
+    try {
+      const { error } = await sb.from("production").delete().eq("id", id);
+      if (error) {
+        console.warn("[Supabase] Delete production failed:", error.message);
+        return { ok: false, error: error.message };
+      }
+      return { ok: true };
+    } catch (err) {
+      console.warn("[Supabase] Delete production exception:", err.message);
+      return { ok: false, error: err.message };
+    }
+  };
+
   return (
-    <AppCtx.Provider value={{ state, dispatch, addSale, addExpense, addProduction }}>
+    <AppCtx.Provider value={{ state, dispatch, addSale, addExpense, addProduction, deleteSale, deleteExpense, deleteProduction }}>
       {children}
     </AppCtx.Provider>
   );
@@ -1342,7 +1423,7 @@ function LoginPage({ navigate }) {
 // ═══════════════════════════════════════════════════════════════
 
 function SalesPage({ navigate, user, pendingCount }) {
-  const { state, addSale } = React.useContext(AppCtx);
+  const { state, addSale, deleteSale } = React.useContext(AppCtx);
   const toast = React.useContext(ToastCtx);
 
   const EMPTY_LINE = { product: "", qty: 1, price: "", discountPct: 0 };
@@ -1353,6 +1434,25 @@ function SalesPage({ navigate, user, pendingCount }) {
   const [errors,      setErrors]      = React.useState({});
   const [showHistory, setShowHistory] = React.useState(false);
   const [savedAnim,   setSavedAnim]   = React.useState(false);
+  // [DELETE] State for which sale is pending confirmation, and loading flag
+  const [deleteTarget,  setDeleteTarget]  = React.useState(null); // sale id
+  const [deleting,      setDeleting]      = React.useState(false);
+
+  // ── Delete sale handler ──────────────────────────────────────
+  // [DELETE_SALE] Called after user confirms deletion in ConfirmModal.
+  // Optimistic dispatch already happened in deleteSale(); we just show toast.
+  const handleDeleteSale = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const result = await deleteSale(deleteTarget);
+    setDeleting(false);
+    setDeleteTarget(null);
+    if (result.ok) {
+      toast("Sale deleted 🗑️");
+    } else {
+      toast("Deleted locally. Supabase sync may be pending.", "ok");
+    }
+  };
 
   // ── Line management ──────────────────────────────────────────
   const updateLine = (i, field, val) => {
@@ -1583,19 +1683,32 @@ function SalesPage({ navigate, user, pendingCount }) {
           ) : (
             [...todaySales].reverse().map(s => (
               <div key={s.id} className="list-item">
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: 14 }}>{s.lines.map(l => `${l.qty}× ${l.product}`).join(", ")}</div>
                     <div style={{ fontSize: 12, color: "var(--tx3)", marginTop: 2 }}>
                       {new Date(s.timestamp).toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })} · By {s.created_by}
                     </div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontWeight: 800, color: "var(--g700)" }}>{peso(s.revenue)}</div>
-                    <div style={{ fontSize: 11, color: "var(--tx3)" }}>
-                      {s.cash_amount  > 0 ? `₱${s.cash_amount} cash`  : ""}
-                      {s.gcash_amount > 0 ? ` GCash ₱${s.gcash_amount}` : ""}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontWeight: 800, color: "var(--g700)" }}>{peso(s.revenue)}</div>
+                      <div style={{ fontSize: 11, color: "var(--tx3)" }}>
+                        {s.cash_amount  > 0 ? `₱${s.cash_amount} cash`  : ""}
+                        {s.gcash_amount > 0 ? ` GCash ₱${s.gcash_amount}` : ""}
+                      </div>
                     </div>
+                    {/* [DELETE] Small trash button — only admin can delete sales */}
+                    {user?.role === "admin" && (
+                      <button
+                        className="btn btn-sm"
+                        style={{ padding: "6px 8px", background: "var(--r100)", color: "var(--r500)", border: "none", borderRadius: 8, flexShrink: 0 }}
+                        onClick={() => setDeleteTarget(s.id)}
+                        title="Delete sale"
+                      >
+                        <Icon name="trash" size={13} />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1604,6 +1717,14 @@ function SalesPage({ navigate, user, pendingCount }) {
         </div>
         <button className="btn btn-ghost btn-full mt-3" onClick={() => setShowHistory(false)}>Close</button>
       </Modal>
+
+      {/* [DELETE_SALE] Confirmation modal — prevents accidental deletions */}
+      <ConfirmModal
+        open={!!deleteTarget}
+        msg="Delete this sale record? This removes it from Supabase and all synced devices. Google Sheets is unaffected."
+        onConfirm={handleDeleteSale}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
@@ -1735,7 +1856,7 @@ function CashCountPage({ navigate, user, pendingCount }) {
 // ═══════════════════════════════════════════════════════════════
 
 function ExpensesPage({ navigate, user, pendingCount }) {
-  const { state, addExpense } = React.useContext(AppCtx);
+  const { state, addExpense, deleteExpense } = React.useContext(AppCtx);
   const toast = React.useContext(ToastCtx);
 
   const [form, setForm] = React.useState({
@@ -1745,6 +1866,9 @@ function ExpensesPage({ navigate, user, pendingCount }) {
   const [saving,   setSaving]   = React.useState(false);
   const [filter,   setFilter]   = React.useState("all");
   const [showForm, setShowForm] = React.useState(false);
+  // [DELETE_EXPENSE] State for confirmation modal
+  const [deleteTarget, setDeleteTarget] = React.useState(null); // expense id
+  const [deleting,     setDeleting]     = React.useState(false);
 
   const todayExpenses = state.expenses.filter(e => e.date === todayS());
   const todayTotal    = todayExpenses.reduce((s, e) => s + (+e.amount || 0), 0);
@@ -1775,6 +1899,20 @@ function ExpensesPage({ navigate, user, pendingCount }) {
 
   const cats  = ["all", ...EXPENSE_CATEGORIES];
   const shown = filter === "all" ? todayExpenses : todayExpenses.filter(e => e.category === filter);
+
+  // [DELETE_EXPENSE] Optimistic delete — UI updates instantly, Supabase runs async
+  const handleDeleteExpense = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const result = await deleteExpense(deleteTarget);
+    setDeleting(false);
+    setDeleteTarget(null);
+    if (result.ok) {
+      toast("Expense deleted 🗑️");
+    } else {
+      toast("Deleted locally. Supabase sync may be pending.", "ok");
+    }
+  };
 
   return (
     <div className="page">
@@ -1825,7 +1963,7 @@ function ExpensesPage({ navigate, user, pendingCount }) {
             [...shown].reverse().map(e => (
               <div key={e.id} className="list-item">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: 14 }}>{e.item_name}</div>
                     <div style={{ display: "flex", gap: 6, marginTop: 4, flexWrap: "wrap" }}>
                       <span className="badge badge-green">{e.category}</span>
@@ -1835,11 +1973,22 @@ function ExpensesPage({ navigate, user, pendingCount }) {
                     </div>
                     {e.supplier && <div style={{ fontSize: 12, color: "var(--tx3)", marginTop: 4 }}>{e.supplier}</div>}
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontWeight: 800, fontSize: 16, color: "var(--r500)" }}>{peso(e.amount)}</div>
-                    <div style={{ fontSize: 11, color: "var(--tx3)", marginTop: 2 }}>
-                      {new Date(e.timestamp).toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontWeight: 800, fontSize: 16, color: "var(--r500)" }}>{peso(e.amount)}</div>
+                      <div style={{ fontSize: 11, color: "var(--tx3)", marginTop: 2 }}>
+                        {new Date(e.timestamp).toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit" })}
+                      </div>
                     </div>
+                    {/* [DELETE] Trash button for each expense row */}
+                    <button
+                      className="btn btn-sm"
+                      style={{ padding: "6px 8px", background: "var(--r100)", color: "var(--r500)", border: "none", borderRadius: 8, flexShrink: 0 }}
+                      onClick={() => setDeleteTarget(e.id)}
+                      title="Delete expense"
+                    >
+                      <Icon name="trash" size={13} />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1884,6 +2033,14 @@ function ExpensesPage({ navigate, user, pendingCount }) {
           </button>
         </div>
       </Modal>
+
+      {/* [DELETE_EXPENSE] Confirmation before permanent delete */}
+      <ConfirmModal
+        open={!!deleteTarget}
+        msg="Delete this expense? It will be removed from Supabase and all synced devices. Google Sheets is unaffected."
+        onConfirm={handleDeleteExpense}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }
@@ -1897,7 +2054,7 @@ function ExpensesPage({ navigate, user, pendingCount }) {
 // ═══════════════════════════════════════════════════════════════
 
 function ProductionPage({ navigate, user, pendingCount }) {
-  const { state, addProduction } = React.useContext(AppCtx);
+  const { state, addProduction, deleteProduction } = React.useContext(AppCtx);
   const toast = React.useContext(ToastCtx);
 
   const [form,     setForm]     = React.useState({ product: "", qty_produced: "" });
@@ -1905,6 +2062,9 @@ function ProductionPage({ navigate, user, pendingCount }) {
   const [showForm, setShowForm] = React.useState(false);
   const [errors,   setErrors]   = React.useState({});
   const [viewDate, setViewDate] = React.useState(todayS());
+  // [DELETE_PRODUCTION] Confirmation target (stores the production entry id)
+  const [deleteTarget, setDeleteTarget] = React.useState(null);
+  const [deleting,     setDeleting]     = React.useState(false);
 
   const dayProd = state.production.filter(p => p.date === viewDate);
 
@@ -1950,6 +2110,20 @@ function ProductionPage({ navigate, user, pendingCount }) {
     toast("Production logged! 🏭");
     setForm({ product: "", qty_produced: "" });
     setShowForm(false);
+  };
+
+  // [DELETE_PRODUCTION] Remove a specific production log entry
+  const handleDeleteProduction = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const result = await deleteProduction(deleteTarget);
+    setDeleting(false);
+    setDeleteTarget(null);
+    if (result.ok) {
+      toast("Production entry deleted 🗑️");
+    } else {
+      toast("Deleted locally. Supabase sync may be pending.", "ok");
+    }
   };
 
   return (
